@@ -11,3 +11,6 @@ railties/doc/guides/html/images
 railties/doc/guides/html/stylesheets
 railties/guides/output
 .idea
+
+# Vi backup files
+*~
