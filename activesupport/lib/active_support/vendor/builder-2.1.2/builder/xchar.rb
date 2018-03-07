@@ -19,7 +19,12 @@ end
 
 if ! defined?(Builder::XChar)
   Builder.check_for_name_collision(String, "to_xs")
-  Builder.check_for_name_collision(Fixnum, "xchr")
+  
+  if RUBY_VERSION >= '2.4.0'
+    Builder.check_for_name_collision(Integer, "xchr")
+  else
+    Builder.check_for_name_collision(Fixnum, "xchr")
+  end
 end
 
 ######################################################################
@@ -86,16 +91,33 @@ end
 ######################################################################
 # Enhance the Fixnum class with a XML escaped character conversion.
 #
-class Fixnum
-  XChar = Builder::XChar if ! defined?(XChar)
 
-  # XML escaped version of chr
-  def xchr
-    n = XChar::CP1252[self] || self
-    case n when *XChar::VALID
-      XChar::PREDEFINED[n] or (n<128 ? n.chr : "&##{n};")
-    else
-      '*'
+if RUBY_VERSION >= '2.4.0'
+  class Integer
+    XChar = Builder::XChar if ! defined?(XChar)
+
+    # XML escaped version of chr
+    def xchr
+      n = XChar::CP1252[self] || self
+      case n when *XChar::VALID
+        XChar::PREDEFINED[n] or (n<128 ? n.chr : "&##{n};")
+      else
+        '*'
+      end
+    end
+  end
+else
+  class Fixnum
+    XChar = Builder::XChar if ! defined?(XChar)
+
+    # XML escaped version of chr
+    def xchr
+      n = XChar::CP1252[self] || self
+      case n when *XChar::VALID
+        XChar::PREDEFINED[n] or (n<128 ? n.chr : "&##{n};")
+      else
+        '*'
+      end
     end
   end
 end

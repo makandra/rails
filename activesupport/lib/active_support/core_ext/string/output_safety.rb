@@ -54,9 +54,17 @@ class Object
   end
 end
 
-class Fixnum
-  def html_safe?
-    true
+if RUBY_VERSION >= '2.4.0'
+  class Integer
+    def html_safe?
+      true
+    end
+  end
+else
+  class Fixnum
+    def html_safe?
+      true
+    end
   end
 end
 
