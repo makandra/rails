@@ -2,7 +2,11 @@ desc 'Print out all defined routes in match order, with names. Target specific c
 task :routes => :environment do
   all_routes = ENV['CONTROLLER'] ? ActionController::Routing::Routes.routes.select { |route| route.defaults[:controller] == ENV['CONTROLLER'] } : ActionController::Routing::Routes.routes
   routes = all_routes.collect do |route|
-    name = ActionController::Routing::Routes.named_routes.routes.key(route).to_s
+    name = if RUBY_VERSION < '1.9.0'
+      ActionController::Routing::Routes.named_routes.routes.index(route).to_s
+    else
+      ActionController::Routing::Routes.named_routes.routes.key(route).to_s
+    end
     verb = route.conditions[:method].to_s.upcase
     segs = route.segments.inject("") { |str,s| str << s.to_s }
     segs.chop! if segs.length > 1
