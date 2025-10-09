@@ -132,7 +132,7 @@ module Rack
       rack_input.set_encoding(Encoding::BINARY) if rack_input.respond_to?(:set_encoding)
       env['rack.input'] = rack_input
 
-      env["CONTENT_LENGTH"] ||= env["rack.input"].length.to_s
+      env["CONTENT_LENGTH"] ||= env["rack.input"].length.to_s if env["rack.input"].respond_to?(:length)
 
       opts.each { |field, value|
         env[field] = value  if String === field
