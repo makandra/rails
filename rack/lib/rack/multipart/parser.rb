@@ -138,7 +138,7 @@ module Rack
           # Save the read body part.
           size_to_read = @buf.size - (@boundary_size+4)
           if head && size_to_read > 0
-            body << @buf.slice!(0, @buf.size - (@boundary_size+4))
+            body << @buf.slice!(0, size_to_read)
             update_retained_size(size_to_read) unless filename
           end
 
