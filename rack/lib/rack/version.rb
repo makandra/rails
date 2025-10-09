@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Rack
-  RELEASE = "1.4.7.24"
+  RELEASE = "1.4.7.25"
 
   # Return the Rack release as a dotted string.
   def self.release
