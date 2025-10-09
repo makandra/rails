@@ -244,6 +244,15 @@ Set to 0 for no limit.
 Can also be set via the `RACK_MULTIPART_TOTAL_PART_LIMIT` environment variable.
 
 
+### multipart_buffered_upload_bytesize_limit
+
+The limit of the bytesize of all multipart parts (header and body), excluding the (body) of parts with a "filename".
+
+Defaults to 16 MB, which means it is not possible for multipart forms to contain form data of a total size greater than 16 MB. Uploaded files can be larger.
+
+Can also be set via the `RACK_MULTIPART_BUFFERED_UPLOAD_BYTESIZE_LIMIT` environment variable.
+
+
 ## History
 
 *   March 3rd, 2007: First public release 0.1.
