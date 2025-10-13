@@ -40,17 +40,22 @@ module Rack
   #     proxy_set_header   X-Real-IP           $remote_addr;
   #     proxy_set_header   X-Forwarded-For     $proxy_add_x_forwarded_for;
   #
-  #     proxy_set_header   X-Sendfile-Type     X-Accel-Redirect;
   #     proxy_set_header   X-Accel-Mapping     /var/www/=/files/;
   #
   #     proxy_pass         http://127.0.0.1:8080/;
   #   }
   #
-  # Note that the X-Sendfile-Type header must be set exactly as shown above.
   # The X-Accel-Mapping header should specify the location on the file system,
   # followed by an equals sign (=), followed name of the private URL pattern
   # that it maps to. The middleware performs a simple substitution on the
   # resulting path.
+  #
+  #  # To enable X-Accel-Redirect, you must configure the middleware explicitly:
+  #
+  #   use Rack::Sendfile, "X-Accel-Redirect"
+  #
+  # For security reasons, "X-Accel-Redirect" may not be set via the X-Sendfile-Type header.
+  # The sendfile variation must be set via the middleware constructor.
   #
   # See Also: http://wiki.codemongers.com/NginxXSendfile
   #
@@ -89,9 +94,30 @@ module Rack
   #   RequestHeader Set X-Sendfile-Type X-Sendfile
   #   ProxyPassReverse / http://localhost:8001/
   #   XSendFile on
+  #
+  # === Mapping parameter
+  #
+  # The third parameter allows for an overriding extension of the
+  # X-Accel-Mapping header. Mappings should be provided in tuples of internal to
+  # external. The internal values may contain regular expression syntax, they
+  # will be matched with case indifference.
+  #
+  # When X-Accel-Redirect is explicitly enabled via the variation parameter,
+  # and no application-level mappings are provided, the middleware will read
+  # the X-Accel-Mapping header from the proxy. This allows nginx to control
+  # the path mapping without requiring application-level configuration.
+  #
+  # === Security
+  #
+  # For security reasons, the X-Sendfile-Type header from HTTP requests may only
+  # be set to "X-Sendfile" or "X-Lighttpd-Send-File". Other values such as
+  # "X-Accel-Redirect" are not permitted to prevent information disclosure
+  # vulnerabilities where attackers could bypass proxy restrictions.
+
 
   class Sendfile
     F = ::File
+    SAFE_SENDFILE_VARIATIONS = ['X-Sendfile', 'X-Lighttpd-Send-File']
 
     def initialize(app, variation=nil)
       @app = app
@@ -125,17 +151,38 @@ module Rack
     end
 
     private
+
+    def x_sendfile_type(env)
+      sendfile_type = env['HTTP_X_SENDFILE_TYPE']
+      if SAFE_SENDFILE_VARIATIONS.include?(sendfile_type)
+        sendfile_type
+      else
+        env['rack.errors'].puts "Unknown or unsafe x-sendfile variation: #{sendfile_type.inspect}"
+      end
+    end
+
     def variation(env)
       @variation ||
         env['sendfile.type'] ||
-        env['HTTP_X_SENDFILE_TYPE']
+        x_sendfile_type(env)
     end
 
-    def map_accel_path(env, file)
-      if mapping = env['HTTP_X_ACCEL_MAPPING']
+    def x_accel_mapping(env)
+      # Only allow header when:
+      # 1. X-Accel-Redirect is explicitly enabled via constructor.
+      # 2. No application-level mappings are configured.
+      return nil unless @variation == 'X-Accel-Redirect'
+
+      env['HTTP_X_ACCEL_MAPPING']
+    end
+
+    def map_accel_path(env, path)
+      if mapping = x_accel_mapping(env)
+        # Safe to use header: explicit config + no app mappings
         internal, external = mapping.split('=', 2).map{ |p| p.strip }
-        file.sub(/^#{internal}/i, external)
+        path.sub(/\A#{internal}/i, external)
       end
     end
+
   end
 end
