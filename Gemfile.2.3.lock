@@ -26,7 +26,7 @@ PATH
 PATH
   remote: rack
   specs:
-    rack (1.4.7.25)
+    rack (1.4.7.26)
 
 GEM
   remote: https://rubygems.org/
