@@ -203,7 +203,10 @@ module Rack
       elsif form_data? || parseable_data?
         @env["rack.request.form_input"] = @env["rack.input"]
         unless @env["rack.request.form_hash"] = parse_multipart(env)
-          form_vars = @env["rack.input"].read
+          # Add 2 bytes. One to check whether it is over the limit, and a second
+          # in case the slice! call below removes the last byte
+          # If read returns nil, use the empty string
+          form_vars = @env["rack.input"].read(Rack::Utils.bytesize_limit + 2) || ''
 
           # Fix for Safari Ajax postings that always append \0
           # form_vars.sub!(/\0\z/, '') # performance replacement:

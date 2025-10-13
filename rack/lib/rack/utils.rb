@@ -113,7 +113,7 @@ module Rack
     def check_query_string(qs, sep)
       if qs
         if qs.bytesize > Rack::Utils.bytesize_limit
-          raise QueryLimitError, "total query size (#{qs.bytesize}) exceeds limit (#{Rack::Utils.bytesize_limit})"
+          raise QueryLimitError, "total query size exceeds limit (#{Rack::Utils.bytesize_limit})"
         end
 
         if (param_count = qs.count(sep.is_a?(String) ? sep : '&')) >= Rack::Utils.params_limit
