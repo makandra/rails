@@ -50,6 +50,18 @@ describe Rack::Sendfile do
     end
   end
 
+  it "does nothing and not log when no X-Sendfile-Type header present" do
+    io = StringIO.new
+    request 'rack.errors' => io do |response|
+      response.should.be.ok
+      response.body.should.equal 'Hello World'
+      response.headers.should.not.include 'X-Sendfile'
+
+      io.rewind
+      io.read.should.equal ''
+    end
+  end
+
   it "does nothing and logs to rack.errors when incorrect variation is configured" do
     io = StringIO.new
     request({ 'rack.errors' => io }, sendfile_body, 'X-Banana') do |response|

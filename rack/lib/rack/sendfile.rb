@@ -156,7 +156,7 @@ module Rack
       sendfile_type = env['HTTP_X_SENDFILE_TYPE']
       if SAFE_SENDFILE_VARIATIONS.include?(sendfile_type)
         sendfile_type
-      else
+      elsif sendfile_type
         env['rack.errors'].puts "Unknown or unsafe x-sendfile variation: #{sendfile_type.inspect}"
       end
     end
