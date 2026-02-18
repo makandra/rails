@@ -49,6 +49,21 @@ describe Rack::Directory do
     res.should.be.forbidden
   end
 
+  should "not allow directory traversal via root prefix bypass" do
+    Dir.mktmpdir do |dir|
+      root = File.join(dir, "root")
+      outside = "#{root}_test"
+      FileUtils.mkdir_p(root)
+      FileUtils.mkdir_p(outside)
+      FileUtils.touch(File.join(outside, "test.txt"))
+
+      traversal_app = Rack::Directory.new(root)
+      res = Rack::MockRequest.new(traversal_app).get("/../#{File.basename(outside)}/")
+
+      res.should.be.forbidden
+    end
+  end
+
   should "not allow dir globs" do
     Dir.mktmpdir do |dir|
       weirds = "uploads/.?/.?"
