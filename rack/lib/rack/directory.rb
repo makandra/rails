@@ -11,7 +11,7 @@ module Rack
   # If +app+ is not specified, a Rack::File of the same +root+ will be used.
 
   class Directory
-    DIR_FILE = "<tr><td class='name'><a href='%s'>%s</a></td><td class='size'>%s</td><td class='type'>%s</td><td class='mtime'>%s</td></tr>"
+    DIR_FILE = "<tr><td class='name'><a href='./%s'>%s</a></td><td class='size'>%s</td><td class='type'>%s</td><td class='mtime'>%s</td></tr>"
     DIR_PAGE = <<-PAGE
 <html><head>
   <title>%s</title>

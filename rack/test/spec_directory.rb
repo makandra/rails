@@ -37,6 +37,15 @@ describe Rack::Directory do
     res.should =~ /passed!/
   end
 
+  should "fix CVE-2026-25500" do
+    res = Rack::MockRequest.new(Rack::Lint.new(app)).
+      get("/")
+
+    res.should.be.ok
+    res.body.should.include('<html><head>')
+    res.body.should.include("href='./cgi")
+  end
+
   should "not allow directory traversal" do
     res = Rack::MockRequest.new(Rack::Lint.new(app)).
       get("/cgi/../test")
