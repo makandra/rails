@@ -33,4 +33,17 @@ class SafeBufferTest < ActiveSupport::TestCase
     new_buffer = @buffer.to_s
     assert_equal ActiveSupport::SafeBuffer, new_buffer.class
   end
+
+  test "Should become unsafe on interpolation" do
+    x = 'foo %s'.html_safe
+    assert x.html_safe?, "should be safe"
+
+    # formatting with interpolation
+    y = x % '<script>alert("lolpwnd");</script>'
+
+    # interpolation makes the string unsafe
+    assert y.include?('<script>'), "should have interpolated"
+    assert !y.html_safe?, "should not be safe"
+  end
+
 end
