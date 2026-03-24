@@ -1,4 +1,5 @@
 require 'abstract_unit'
+require 'nokogiri'
 
 class TagHelperTest < ActionView::TestCase
   tests ActionView::Helpers::TagHelper
@@ -29,6 +30,13 @@ class TagHelperTest < ActionView::TestCase
     assert_equal "<p included=\"\" />", tag("p", :included => '')
   end
 
+  def test_tag_options_rejects_blank_key
+    assert_equal "<p />", tag("p", "" => "value")
+    assert_equal "<p />", tag("p", nil => "value")
+    assert_equal '<p class="a" />', tag("p", "" => "value", "class" => "a")
+    assert_equal '<p class="a" />', tag("p", nil => "value", "class" => "a")
+  end
+
   def test_tag_options_converts_boolean_option
     assert_equal '<p disabled="disabled" multiple="multiple" readonly="readonly" />',
       tag("p", :disabled => true, :multiple => true, :readonly => true)
@@ -48,6 +56,14 @@ class TagHelperTest < ActionView::TestCase
 
     assert_equal "<the-name #{COMMON_DANGEROUS_CHARS}=\"the value\" />",
                  tag("the-name", { COMMON_DANGEROUS_CHARS => "the value" }, false, false)
+  end
+
+  def test_tag_with_blank_attribute_name_generates_valid_markup
+    # https://hackerone.com/reports/3078929
+    html = tag("img", "src" => "/nonexistent.png", "" => "/onerror=alert(1)")
+    fragment = Nokogiri::HTML::DocumentFragment.parse(html)
+    attrs = fragment.css("img")[0].attribute_nodes.map(&:name)
+    assert_equal [ "src" ], attrs
   end
 
   def test_content_tag_with_dangerous_names

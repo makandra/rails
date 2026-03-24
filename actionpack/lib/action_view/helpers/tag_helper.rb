@@ -144,6 +144,8 @@ module ActionView
             attrs = []
             if escape
               options.each_pair do |key, value|
+                next if key.blank?
+
                 if BOOLEAN_ATTRIBUTES.include?(key)
                   attrs << %(#{key}="#{key}") if value
                 else
