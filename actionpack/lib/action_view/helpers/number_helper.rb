@@ -170,7 +170,19 @@ module ActionView
 
         begin
           parts = number.to_s.split('.')
-          parts[0].gsub!(/(\d)(?=(\d\d\d)+(?!\d))/, "\\1#{delimiter}")
+          parts[0].gsub!(/\d+/) do |number_group|
+            group_parts = []
+            offset = number_group.size % 3
+            if offset > 0
+              group_parts << number_group[0, offset]
+            end
+
+            (number_group.size / 3).to_i.times do |i|
+              group_parts << number_group[offset + (i * 3), 3]
+            end
+
+            group_parts.join(delimiter)
+          end
           parts.join(separator)
         rescue
           number
@@ -200,6 +212,12 @@ module ActionView
         options = args.extract_options!
         options.symbolize_keys!
 
+        if valid_float?(number)
+          number = Float(number)
+        else
+          return number
+        end
+
         defaults           = I18n.translate(:'number.format', :locale => options[:locale], :raise => true) rescue {}
         precision_defaults = I18n.translate(:'number.precision.format', :locale => options[:locale],
                                                                         :raise => true) rescue {}
@@ -215,14 +233,10 @@ module ActionView
         separator ||= (options[:separator] || defaults[:separator])
         delimiter ||= (options[:delimiter] || defaults[:delimiter])
 
-        begin
-          rounded_number = (Float(number) * (10 ** precision)).round.to_f / 10 ** precision
-          number_with_delimiter("%01.#{precision}f" % rounded_number,
-            :separator => separator,
-            :delimiter => delimiter)
-        rescue
-          number
-        end
+        rounded_number = (number * (10 ** precision)).round.to_f / 10 ** precision
+        number_with_delimiter("%01.#{precision}f" % rounded_number,
+          :separator => separator,
+          :delimiter => delimiter)
       end
 
       STORAGE_UNITS = [:byte, :kb, :mb, :gb, :tb].freeze
@@ -259,7 +273,11 @@ module ActionView
       #  number_to_human_size(1234567, 2)    # => 1.18 MB
       #  number_to_human_size(483989, 0)     # => 473 KB
       def number_to_human_size(number, *args)
-        return nil if number.nil?
+        if valid_float?(number)
+          number = Float(number)
+        else
+          return number
+        end
 
         options = args.extract_options!
         options.symbolize_keys!
@@ -285,7 +303,6 @@ module ActionView
           storage_units_format.gsub(/%n/, number.to_i.to_s).gsub(/%u/, unit)
         else
           max_exp  = STORAGE_UNITS.size - 1
-          number   = Float(number)
           exponent = (Math.log(number) / Math.log(1024)).to_i # Convert to base 1024
           exponent = max_exp if exponent > max_exp # we need this to avoid overflow for the highest unit
           number  /= 1024 ** exponent
@@ -305,6 +322,19 @@ module ActionView
             number
           end
         end
+      end
+
+      private
+
+      def valid_float?(number)
+        if number.is_a?(String) && number.to_s =~ /[de]/i
+          # Reject scientific notation, which allow expressing extremly large numbers with just a few bytes of input.
+          nil
+        else
+          Float(number)
+        end
+      rescue ArgumentError, TypeError
+        false
       end
     end
   end

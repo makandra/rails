@@ -1,4 +1,5 @@
 require 'abstract_unit'
+require 'timeout'
 
 class NumberHelperTest < ActionView::TestCase
   tests ActionView::Helpers::NumberHelper
@@ -74,6 +75,8 @@ class NumberHelperTest < ActionView::TestCase
     assert_equal("12,345,678", number_with_delimiter(12345678))
     assert_equal("0", number_with_delimiter(0))
     assert_equal("123", number_with_delimiter(123))
+    assert_equal("1,234", number_with_delimiter(1234))
+    assert_equal("12,345", number_with_delimiter(12345))
     assert_equal("123,456", number_with_delimiter(123456))
     assert_equal("123,456.78", number_with_delimiter(123456.78))
     assert_equal("123,456.789", number_with_delimiter(123456.789))
@@ -83,6 +86,26 @@ class NumberHelperTest < ActionView::TestCase
     assert_equal("123,456.78", number_with_delimiter("123456.78"))
     assert_equal("x", number_with_delimiter("x"))
     assert_nil number_with_delimiter(nil)
+  end
+
+  def test_to_delimited_is_not_vulnerable_to_redos_cve_2026_33169
+    evil_string = "1" * 50_000
+
+    Timeout.timeout(1) do
+      number_with_delimiter(evil_string)
+    end
+
+    assert true, "number_with_delimiter timed out on a large string, indicating possible ReDoS"
+  end
+
+  def test_to_delimited_with_decimals_is_not_vulnerable_to_redos
+    evil_decimal_string = "1" * 50_000 + "." + "2" * 50_000
+
+    Timeout.timeout(1) do
+      number_with_delimiter(evil_decimal_string)
+    end
+
+    assert true
   end
 
   def test_number_with_delimiter_with_options_hash
@@ -156,4 +179,31 @@ class NumberHelperTest < ActionView::TestCase
     assert_equal '1,01 KB',     number_to_human_size(1.0100.kilobytes, :precision => 4, :separator => ',')
     assert_equal '1.000,1 TB',  number_to_human_size(1000.1.terabytes, :delimiter => '.', :separator => ',')
   end
+
+  def test_number_helpers_with_scientific_notation
+      assert_nothing_raised do
+        Timeout.timeout(1) do
+          assert_equal "$123481223d98989", number_to_currency("123481223d98989")
+          assert_equal "$11288E822220222", number_to_currency("11288E822220222")
+          assert_equal "$-888E89789", number_to_currency("-888E89789")
+
+          assert_equal "123481223d98989%", number_to_percentage("123481223d98989")
+          assert_equal "11288E822220222%", number_to_percentage("11288E822220222")
+          assert_equal "-888E89789%", number_to_percentage("-888E89789")
+
+          assert_equal "123481223d98989", number_with_precision("123481223d98989")
+          assert_equal "11288E822220222", number_with_precision("11288E822220222")
+          assert_equal "-888E89789", number_with_precision("-888E89789")
+
+          assert_equal "123481223d98989", number_to_human_size("123481223d98989")
+          assert_equal "11288E822220222", number_to_human_size("11288E822220222")
+          assert_equal "-888E89789", number_to_human_size("-888E89789")
+
+          number_to_phone("123481223d98989")
+          number_to_phone("11288E822220222")
+          number_to_phone("-888E89789")
+        end
+      end
+  end
+
 end
