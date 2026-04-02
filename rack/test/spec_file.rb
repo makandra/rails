@@ -108,6 +108,43 @@ describe Rack::File do
     res.should.be.not_found
   end
 
+  should "use bytesize not size for Content-Length in error responses with multibyte UTF-8" do
+    app = Rack::File.new(DOCROOT)
+
+    # Create env directly with UTF-8 encoded PATH_INFO (not ASCII-8BIT like MockRequest forces):
+    env = {
+      "REQUEST_METHOD" => "GET",
+      "PATH_INFO" => "/cgi/caf%C3%A9", # URL-encoded "café"
+      "SCRIPT_NAME" => "",
+      "QUERY_STRING" => "",
+      "SERVER_NAME" => "example.org",
+      "SERVER_PORT" => "80",
+      "rack.url_scheme" => "http",
+      "rack.input" => StringIO.new,
+      "rack.errors" => StringIO.new
+    }
+
+    status, headers, body = app.call(env)
+
+    # Should be 404 not found:
+    status.should.equal 404
+
+    # Extract body content:
+    body_str = String.new
+    body.each { |part| body_str << part }
+
+    # In Ruby 1.8.7, strings don't track their encoding, and String#size returns the same as String#bytesize.
+    # For Ruby 1.9 and above, String#size returns the encoded character count which is why `Rack::File`
+    # must use String#bytesize to compute the "Content-Length" value.
+    # To verify those differences in this test's response body on modern and legacy Ruby, our tests use String#unpack.
+    body_str.unpack('U*').size.should.equal 26 # character count
+    body_str.unpack('C*').size.should.equal 27 # byte count
+
+    # Content-Length must be 27 (bytes), not 26 (characters):
+    # (This will FAIL if using .size instead of .bytesize)
+    headers["Content-Length"].should.equal "27"
+  end
+
   should "detect SystemCallErrors" do
     res = Rack::MockRequest.new(file(DOCROOT)).get("/cgi")
 

@@ -126,7 +126,7 @@ module Rack
         status,
         {
           "Content-Type" => "text/plain",
-          "Content-Length" => body.size.to_s,
+          "Content-Length" => body.bytesize.to_s,
           "X-Cascade" => "pass"
         },
         [body]
