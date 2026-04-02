@@ -26,6 +26,10 @@ describe Rack::Multipart do
     Rack::Utils.multipart_parser_bytesize_limit = previous
   end
 
+  should "use 0 as the default multipart parser bytesize limit (no limit)" do
+    Rack::Utils.multipart_parser_bytesize_limit.should.equal 0
+  end
+
   should "raise an exception if Content-Length exceeds total bytesize limit" do
     with_multipart_limit(1024) do
       env = Rack::MockRequest.env_for("/",

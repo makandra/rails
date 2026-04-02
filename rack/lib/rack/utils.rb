@@ -120,8 +120,8 @@ module Rack
 
     # The maximum total bytesize of a multipart request body. Checked against
     # Content-Length upfront if present, and against bytes read during streaming.
-    # Set to 0 for no limit. Defaults to 10 GB.
-    self.multipart_parser_bytesize_limit = (ENV['RACK_MULTIPART_PARSER_BYTESIZE_LIMIT'] || 10 * 1024 * 1024 * 1024).to_i
+    # Set to 0 for no limit. Defaults to 0 (no limit).
+    self.multipart_parser_bytesize_limit = (ENV['RACK_MULTIPART_PARSER_BYTESIZE_LIMIT'] || 0).to_i
 
     def check_query_string(qs, sep)
       if qs
