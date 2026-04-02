@@ -342,6 +342,13 @@ describe Rack::Utils do
 
     helper.call(%w(foo bar identity), [["foo", 0], ["bar", 0]]).should.equal("identity")
     helper.call(%w(foo bar baz identity), [["*", 0], ["identity", 0.1]]).should.equal("identity")
+    helper.call(%w(foo bar baz identity), [["*", 0.1], ["identity", 0.2]]).should.equal("identity")
+    helper.call(%w(foo bar baz identity), [["*", 0.1], ["identity", 0.2], ["*", 0.3]]).should.equal("identity")
+    helper.call(%w(foo bar baz identity), [["*", 0.3], ["identity", 0.2], ["*", 0.1]]).should.equal("foo")
+
+    # Fix for CVE-2026-34230 will not parse more than 16 Accept-Encoding items; "bar" would win, but is ignored.
+    too_many = [["foo", 0.1]] * 16 + [["bar", 1.0]]
+    helper.call(%w(foo bar baz identity), too_many).should.equal("foo")
   end
 
   should "return the bytesize of String" do
