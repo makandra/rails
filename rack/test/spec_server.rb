@@ -1,4 +1,5 @@
 require 'rack'
+require 'rack/handler'
 require 'rack/server'
 require 'tempfile'
 require 'socket'
