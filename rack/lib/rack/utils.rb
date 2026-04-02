@@ -77,6 +77,7 @@ module Rack
       attr_accessor :bytesize_limit # CVE-2025-46727
       attr_accessor :params_limit # CVE-2025-46727
       attr_accessor :buffered_upload_bytesize_limit # CVE-2025-61771
+      attr_accessor :multipart_parser_bytesize_limit
 
       # multipart_part_limit is the original name of multipart_file_limit, but
       # the limit only counts parts with filenames.
@@ -116,6 +117,11 @@ module Rack
     # of a multipart request. Parts with filenames are written to tempfiles
     # and do not count. Defaults to 16 MB.
     self.buffered_upload_bytesize_limit = (ENV['RACK_MULTIPART_BUFFERED_UPLOAD_BYTESIZE_LIMIT'] || 16 * 1024 * 1024).to_i
+
+    # The maximum total bytesize of a multipart request body. Checked against
+    # Content-Length upfront if present, and against bytes read during streaming.
+    # Set to 0 for no limit. Defaults to 10 GB.
+    self.multipart_parser_bytesize_limit = (ENV['RACK_MULTIPART_PARSER_BYTESIZE_LIMIT'] || 10 * 1024 * 1024 * 1024).to_i
 
     def check_query_string(qs, sep)
       if qs

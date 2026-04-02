@@ -89,7 +89,12 @@ module Rack
           @content_length -= @boundary_size
         end
 
+        if Utils.multipart_parser_bytesize_limit > 0 && @content_length && @content_length > Utils.multipart_parser_bytesize_limit
+          raise EOFError, "multipart Content-Length #{@content_length} exceeds limit of #{Utils.multipart_parser_bytesize_limit} bytes"
+        end
+
         @retained_size = 0
+        @total_bytes_read = Utils.multipart_parser_bytesize_limit > 0 ? 0 : nil
         true
       end
 
@@ -105,6 +110,7 @@ module Rack
         loop do
           content = @io.read(BUFSIZE)
           raise EOFError, "bad content body" unless content
+          check_bytes_read(content)
           @buf << content
 
           while @buf.gsub!(/\A([^\n]*\n)/, '')
@@ -152,6 +158,7 @@ module Rack
 
           content = @io.read(@content_length && BUFSIZE >= @content_length ? @content_length : BUFSIZE)
           raise EOFError, "bad content body"  if content.nil? || content.empty?
+          check_bytes_read(content)
 
           @buf << content
 
@@ -220,6 +227,14 @@ module Rack
         end
 
         [filename, data]
+      end
+
+      def check_bytes_read(content)
+        return unless @total_bytes_read
+        @total_bytes_read += content.bytesize
+        if @total_bytes_read > Utils.multipart_parser_bytesize_limit
+          raise EOFError, "multipart upload exceeds limit of #{Utils.multipart_parser_bytesize_limit} bytes"
+        end
       end
 
       def update_retained_size(size)

@@ -18,6 +18,54 @@ describe Rack::Multipart do
     File.join(File.dirname(__FILE__), "multipart", name.to_s)
   end
 
+  def with_multipart_limit(limit)
+    previous = Rack::Utils.multipart_parser_bytesize_limit
+    Rack::Utils.multipart_parser_bytesize_limit = limit
+    yield
+  ensure
+    Rack::Utils.multipart_parser_bytesize_limit = previous
+  end
+
+  should "raise an exception if Content-Length exceeds total bytesize limit" do
+    with_multipart_limit(1024) do
+      env = Rack::MockRequest.env_for("/",
+        "CONTENT_TYPE" => "multipart/form-data; boundary=AaB03x",
+        "CONTENT_LENGTH" => "2048",
+        :input => StringIO.new("--AaB03x--\r\n"))
+      lambda {
+        Rack::Multipart.parse_multipart(env)
+      }.should.raise(EOFError)
+    end
+  end
+
+  should "allow requests within the total bytesize limit" do
+    with_multipart_limit(1024 * 1024) do
+      env = Rack::MockRequest.env_for("/", multipart_fixture(:text))
+      params = Rack::Multipart.parse_multipart(env)
+      params["submit-name"].should.equal "Larry"
+    end
+  end
+
+  should "skip total bytesize check when limit is 0" do
+    with_multipart_limit(0) do
+      env = Rack::MockRequest.env_for("/", multipart_fixture(:text))
+      params = Rack::Multipart.parse_multipart(env)
+      params["submit-name"].should.equal "Larry"
+    end
+  end
+
+  should "enforce total bytesize limit during streaming when Content-Length is absent" do
+    with_multipart_limit(1) do
+      fixture = multipart_fixture(:text)
+      fixture.delete("CONTENT_LENGTH")
+      env = Rack::MockRequest.env_for("/", fixture)
+      env.delete("CONTENT_LENGTH")
+      lambda {
+        Rack::Multipart.parse_multipart(env)
+      }.should.raise(EOFError)
+    end
+  end
+
   should "return nil if content type is not multipart" do
     env = Rack::MockRequest.env_for("/",
             "CONTENT_TYPE" => 'application/x-www-form-urlencoded')
