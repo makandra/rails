@@ -64,9 +64,17 @@ module Rack
 
       private
       def setup_parse
-        return false unless @env['CONTENT_TYPE'] =~ MULTIPART
+        match = MULTIPART.match(@env['CONTENT_TYPE'])
+        return false unless match
 
-        @boundary = "--#{$1}"
+        unless match[1].empty?
+          raise EOFError, "whitespace between boundary parameter name and equal sign"
+        end
+        if match.post_match =~ /boundary\s*=/i
+          raise EOFError, "multiple boundary parameters found in multipart content type"
+        end
+
+        @boundary = "--#{match[2]}"
 
         @buf = ""
         @params = Utils::KeySpaceConstrainedParams.new

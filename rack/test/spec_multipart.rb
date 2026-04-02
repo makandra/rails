@@ -24,6 +24,45 @@ describe Rack::Multipart do
     Rack::Multipart.parse_multipart(env).should.equal nil
   end
 
+  should "raise an exception if there are multiple boundaries" do
+    env = multipart_fixture(:content_type_and_no_filename)
+    env["CONTENT_TYPE"] += "; Boundary=FooBar42x"
+    env = Rack::MockRequest.env_for("/", env)
+    lambda {
+      Rack::Multipart.parse_multipart(env)
+    }.should.raise(EOFError)
+
+    # Real boundary last: greedy regex picks up AaB03x, body parses successfully without raising
+    env = multipart_fixture(:content_type_and_no_filename)
+    env["CONTENT_TYPE"] = "multipart/form-data; boundary=FooBar42x; Boundary=AaB03x"
+    env = Rack::MockRequest.env_for("/", env)
+    lambda {
+      Rack::Multipart.parse_multipart(env)
+    }.should.raise(EOFError)
+
+    env = multipart_fixture(:content_type_and_no_filename)
+    env["CONTENT_TYPE"] = "#{env["CONTENT_TYPE"].sub("boundary=", "boundary =")}; Boundary=FooBar42x"
+    env = Rack::MockRequest.env_for("/", env)
+    lambda {
+      Rack::Multipart.parse_multipart(env)
+    }.should.raise(EOFError)
+
+    # Real boundary last: regex skips "boundary =" (space before =), matches Boundary=AaB03x, body parses successfully without raising
+    env = multipart_fixture(:content_type_and_no_filename)
+    env["CONTENT_TYPE"] = "multipart/form-data; boundary =FooBar42x; Boundary=AaB03x"
+    env = Rack::MockRequest.env_for("/", env)
+    lambda {
+      Rack::Multipart.parse_multipart(env)
+    }.should.raise(EOFError)
+
+    env = multipart_fixture(:content_type_and_no_filename)
+    env["CONTENT_TYPE"] = "#{env["CONTENT_TYPE"].sub("boundary=", "boundary =")}; Boundary =FooBar42x"
+    env = Rack::MockRequest.env_for("/", env)
+    lambda {
+      Rack::Multipart.parse_multipart(env)
+    }.should.raise(EOFError)
+  end
+
   should "parse multipart content when content type present but filename is not" do
     env = Rack::MockRequest.env_for("/", multipart_fixture(:content_type_and_no_filename))
     params = Rack::Multipart.parse_multipart(env)

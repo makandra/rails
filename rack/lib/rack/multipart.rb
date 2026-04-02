@@ -11,7 +11,7 @@ module Rack
     FWS = /[ \t]+(?:\r\n[ \t]+)?/ # whitespace with optional folding
     HEADER_VALUE = "(?:[^\r\n]|\r\n[ \t])*" # anything but a non-folding CRLF
     MULTIPART_BOUNDARY = "AaB03x"
-    MULTIPART = %r|\Amultipart/.*boundary=\"?([^\";,]+)\"?|n
+    MULTIPART = %r|\Amultipart/.*?boundary(\s*)=\"?([^\";,]+)\"?|ni
     TOKEN = /[^\s()<>,;:\\"\/\[\]?=]+/
     CONDISP = /Content-Disposition:\s*#{TOKEN}\s*/i
     DISPPARM = /;\s*(#{TOKEN})=("(?:\\"|[^"])*"|#{TOKEN})/
