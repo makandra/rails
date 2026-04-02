@@ -33,7 +33,23 @@ describe Rack::Static do
      res = @request.get("/cgi/../#{File.basename(__FILE__)}")
      res.should.be.ok
      res.body.should == "Hello World"
-   end
+  end
+
+  it "not allow directory traversal via root prefix bypass" do
+    Dir.mktmpdir do |dir|
+      # Naming this variable `root` would overshadow an existing variable from our enclosing scope.
+      allowed_root = File.join(dir, "root")
+      outside = "#{allowed_root}_test"
+      FileUtils.mkdir_p(allowed_root)
+      FileUtils.mkdir_p(outside)
+      FileUtils.touch(File.join(outside, "test.txt"))
+
+      app = Rack::Static.new(proc { |env| [403, {}, ""] }, :root => dir, :urls => ["/root"])
+      res = Rack::MockRequest.new(app).get("/root_test/test.txt")
+
+      res.should.be.forbidden
+    end
+  end
 
   it "404s if url root is known but it can't find the file" do
     res = @request.get("/cgi/foo")
