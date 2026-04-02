@@ -1,3 +1,4 @@
+require 'rack/body_proxy'
 require 'rack/response'
 require 'stringio'
 
