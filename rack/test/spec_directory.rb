@@ -121,4 +121,27 @@ describe Rack::Directory do
     res = mr.get("/script-path/cgi/test%2bdirectory/test%2bfile")
     res.should.be.ok
   end
+
+  should "handle root paths containing regex metacharacters" do
+    Dir.mktmpdir do |tmpdir|
+      # Create a directory with a name that contains regex metacharacters:
+      root = File.join(tmpdir, "plus+root")
+      FileUtils.mkdir(root)
+
+      # Create a file in the directory:
+      File.open(File.join(root, "file.txt"), "w") { |f| f.write("test") }
+
+      # Make a request to the directory app:
+      app = Rack::Lint.new(Rack::Directory.new(root))
+      res = Rack::MockRequest.new(app).get("/")
+      res.should.be.ok
+
+      # This should not leak the root directory:
+      res.body.should.not.include root
+      res.body.should.not.include Rack::Utils.escape_html(tmpdir)
+
+      # This is always okay:
+      res.body.should.include "file.txt"
+    end
+  end
 end

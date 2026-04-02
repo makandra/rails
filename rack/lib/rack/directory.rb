@@ -134,7 +134,7 @@ table { width:100%%; }
     end
 
     def each
-      show_path = @path.sub(/^#{@root}/,'')
+      show_path = @path.sub(/^#{Regexp.escape(@root)}/,'')
       files = @files.map{|f| DIR_FILE % f }*"\n"
       page  = DIR_PAGE % [ show_path, show_path , files ]
       page.each_line{|l| yield l }
