@@ -777,4 +777,26 @@ contents\r
     params["file"][:filename].should.equal('long' * 100)
   end
 
+  should "prevents CRLF injection in parameter values via obs-fold" do
+    data = <<-EOF.dup
+--AaB03x\r
+Content-Disposition: form-data; name="upload"; filename="test\r
+\t.txt"\r
+Content-Type: application/octet-stream;\r
+ name="file.php"\r
+\r
+<?php eval($_POST['x']); ?>\r
+--AaB03x--\r
+    EOF
+
+    options = {
+      "CONTENT_TYPE" => "multipart/form-data; boundary=AaB03x",
+      "CONTENT_LENGTH" => data.length.to_s,
+      :input => StringIO.new(data)
+    }
+    env = Rack::MockRequest.env_for("/", options)
+    params = Rack::Multipart.parse_multipart(env)
+    params["upload"][:filename].should.equal "test\t.txt"
+    params["upload"][:type].should.equal 'application/octet-stream; name="file.php"'
+  end
 end

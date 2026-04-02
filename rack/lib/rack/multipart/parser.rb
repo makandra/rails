@@ -122,6 +122,10 @@ module Rack
         end
       end
 
+      # CVE-2026-26962
+      OBS_UNFOLD = /\r\n([ \t])/
+      private_constant :OBS_UNFOLD if RUBY_VERSION >= "1.9.3"
+
       def get_current_head_and_filename_and_content_type_and_name_and_body
         head = nil
         body = ''
@@ -136,6 +140,8 @@ module Rack
 
             update_retained_size(head.bytesize)
             content_type = head[MULTIPART_CONTENT_TYPE, 1]
+            content_type.gsub!(OBS_UNFOLD, '\1') if content_type
+
             name = get_name(head)
 
             filename = get_filename(head)
@@ -179,6 +185,7 @@ module Rack
 
       def get_filename(head)
         filename = nil
+        head = head.gsub(OBS_UNFOLD, '\1') if head
         if head =~ RFC2183
           filename = Hash[head.scan(DISPPARM)]['filename']
           filename = $1 if filename and filename =~ /^"(.*)"$/
