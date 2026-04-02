@@ -180,7 +180,7 @@ module Rack
       if mapping = x_accel_mapping(env)
         # Safe to use header: explicit config + no app mappings
         internal, external = mapping.split('=', 2).map{ |p| p.strip }
-        path.sub(/\A#{internal}/i, external)
+        path.sub(/\A#{Regexp.escape(internal)}/i, external)
       end
     end
 

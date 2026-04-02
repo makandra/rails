@@ -128,6 +128,20 @@ describe Rack::Sendfile do
     end
   end
 
+  it "does not do a regexp substitution on the internal path" do
+    tmpdir = Dir.tmpdir.dup
+    tmpdir[1..2] = ".*"
+    headers = {
+      'HTTP_X_ACCEL_MAPPING' => "#{tmpdir}/=/foo/bar/"
+    }
+    request(headers, sendfile_body, 'X-Accel-Redirect') do |response|
+      response.should.be.ok
+      response.body.should.be.empty
+      response.headers['Content-Length'].should.equal '0'
+      response.headers['X-Accel-Redirect'].should.equal '/tmp/rack_sendfile'
+    end
+  end
+
   it 'writes to rack.error when no X-Accel-Mapping is specified' do
     request({}, sendfile_body, 'X-Accel-Redirect') do |response|
       response.should.be.ok
