@@ -419,6 +419,20 @@ describe Rack::Utils, "byte_range" do
     Rack::Utils.byte_ranges({ "HTTP_RANGE" => "bytes=0-20,0-500" }, 500).should.equal []
   end
 
+  should "return an empty list if the number of ranges exceeds what is allowed" do
+    range = "bytes=#{Array.new(101) { |i| "#{i}=#{i}"}.join(',')}"
+    Rack::Utils.byte_ranges({ "HTTP_RANGE" => range }, 500).should.equal nil
+    Rack::Utils.byte_ranges({ "HTTP_RANGE" => "bytes=0-0,1-1" }, 500, :max_ranges => 1).should.equal nil
+    Rack::Utils.byte_ranges({ "HTTP_RANGE" => "bytes=0-0" }, 500, :max_ranges => 1).should.equal [0..0]
+
+    # exceed default max_ranges of 100
+    Rack::Utils.byte_ranges({ "HTTP_RANGE" => "bytes=#{(0..100).map { |i| "#{i}-#{i}" }.join(",")}" }, 500).should.equal nil
+  end
+
+  should "parse simple byte ranges from env" do
+    Rack::Utils.byte_ranges({ "HTTP_RANGE" => "bytes=123-456" }, 500).should.equal [(123..456)]
+  end
+
   should "ignore missing or syntactically invalid byte ranges" do
     Rack::Utils.byte_ranges({},500).should.equal nil
     Rack::Utils.byte_ranges({"HTTP_RANGE" => "foobar"},500).should.equal nil
