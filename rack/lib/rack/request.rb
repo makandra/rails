@@ -111,9 +111,27 @@ module Rack
       end
     end
 
+    # Taken from newer Racks (named captures replaced with non-capturing groups for Ruby 1.8 compatibility)
+    VALID_HOST = /^
+      (?:
+        # An IPv6 address:
+        (?:\[[^\]]*\])
+        |
+        # An IPv4 address:
+        (?:[\d\.]+)
+        |
+        # A hostname:
+        (?:[-a-zA-Z0-9._~%!$&'()*+,;=]+)
+      )
+    $/x
+
     def host
-      # Remove port number.
-      host_with_port.to_s.gsub(/:\d+\z/, '')
+      host = host_with_port.to_s.gsub(/:\d+\z/, '')
+      if host.empty?
+        host
+      elsif VALID_HOST.match(host)
+        host
+      end
     end
 
     def script_name=(s); @env["SCRIPT_NAME"] = s.to_s             end

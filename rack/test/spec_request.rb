@@ -1,3 +1,5 @@
+# Encoding: UTF-8
+
 require 'stringio'
 require 'cgi'
 require 'rack/request'
@@ -53,6 +55,42 @@ describe Rack::Request do
     env.delete("SERVER_NAME")
     req = Rack::Request.new(env)
     req.host.should.equal ""
+
+    # Punycode conversion of ♡.com
+    req = Rack::Request.new \
+      Rack::MockRequest.env_for("/", "HTTP_HOST" => "xn--c6h.com")
+    req.host.should.equal "xn--c6h.com"
+
+    req = Rack::Request.new \
+      Rack::MockRequest.env_for("/", "HTTP_HOST" => "♡.com")
+    req.host.should.be.nil
+
+    req = Rack::Request.new \
+      Rack::MockRequest.env_for("/", "HTTP_HOST" => "♡.com:80")
+    req.host.should.be.nil
+
+    # Punycode conversion of ♡.com with port
+    req = Rack::Request.new \
+      Rack::MockRequest.env_for("/", "HTTP_HOST" => "xn--c6h.com:80")
+    req.host.should.equal "xn--c6h.com"
+
+    # Punycode conversion of nic.谷歌
+    req = Rack::Request.new \
+      Rack::MockRequest.env_for("/", "HTTP_HOST" => "nic.xn--flw351e")
+    req.host.should.equal "nic.xn--flw351e"
+
+    req = Rack::Request.new \
+      Rack::MockRequest.env_for("/", "HTTP_HOST" => "nic.谷歌")
+    req.host.should.be.nil
+
+    req = Rack::Request.new \
+      Rack::MockRequest.env_for("/", "HTTP_HOST" => "nic.谷歌:80")
+    req.host.should.be.nil
+
+    # Punycode conversion of nic.谷歌 with port
+    req = Rack::Request.new \
+      Rack::MockRequest.env_for("/", "HTTP_HOST" => "nic.xn--flw351e:80")
+    req.host.should.equal "nic.xn--flw351e"
   end
 
   should "figure out the correct port" do
