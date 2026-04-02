@@ -93,6 +93,14 @@ describe Rack::Utils do
     Rack::Utils.escape_path("foo bar").should.equal  "foo%20bar"
   end
 
+  should "unescapes percent encodings in paths" do
+    Rack::Utils.unescape_path('/cgi/assets/fonts/font%2Eeot').should.equal '/cgi/assets/fonts/font.eot'
+  end
+
+  should "preserves + symbol when unescaping path" do
+    Rack::Utils.unescape_path('foo+bar').should.equal 'foo+bar'
+  end
+
   should "unescape correctly" do
     Rack::Utils.unescape("fo%3Co%3Ebar").should.equal "fo<o>bar"
     Rack::Utils.unescape("a+space").should.equal "a space"

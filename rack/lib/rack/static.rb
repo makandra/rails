@@ -132,19 +132,20 @@ module Rack
     end
 
     def apply_rule(rule, headers)
+      path = ::Rack::Utils.unescape(@path)
+
       case rule
       when :all    # All files
         set_headers(headers)
       when :fonts  # Fonts Shortcut
-        set_headers(headers) if @path.match(/\.(?:ttf|otf|eot|woff|svg)\z/)
+        set_headers(headers) if path.match(/\.(?:ttf|otf|eot|woff|svg)\z/)
       when String  # Folder
-        path = ::Rack::Utils.unescape(@path)
         set_headers(headers) if (path.start_with?(rule) || path.start_with?('/' + rule))
       when Array   # Extension/Extensions
-        extensions = rule.join('|')
-        set_headers(headers) if @path.match(/\.(#{extensions})\z/)
+        extensions = Regexp.union(rule)
+        set_headers(headers) if path.match(/\.(#{extensions})\z/)
       when Regexp  # Flexible Regexp
-        set_headers(headers) if @path.match(rule)
+        set_headers(headers) if path.match(rule)
       else
       end
     end

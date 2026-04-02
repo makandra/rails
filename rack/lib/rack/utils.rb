@@ -47,6 +47,13 @@ module Rack
     end
     module_function :escape_path
 
+    # Unescapes the **path** component of a URI.  See Rack::Utils.unescape for
+    # unescaping query parameters or form components.
+    def unescape_path(s)
+      s.gsub(/[^+]+/) { |substr| unescape(substr) }
+    end
+    module_function :unescape_path
+
     # Unescapes a URI escaped string with +encoding+. +encoding+ will be the
     # target encoding of the string returned, and it defaults to UTF-8
     if defined?(::Encoding)
