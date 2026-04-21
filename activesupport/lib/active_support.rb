@@ -73,3 +73,4 @@ rescue
 end
 
 require 'active_support/rails_lts/uri_patch'
+require 'active_support/rails_lts/erb_patch'
