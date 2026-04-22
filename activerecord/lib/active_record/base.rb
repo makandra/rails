@@ -558,6 +558,15 @@ module ActiveRecord #:nodoc:
     cattr_accessor :raise_int_wider_than_64bit, :instance_writer => false
     @@raise_int_wider_than_64bit = true
 
+    class ColumnAwareBindValue #:nodoc:
+      attr_reader :value, :column
+
+      def initialize(value, column)
+        @value = value
+        @column = column
+      end
+    end
+
     class << self # Class methods
       # Find operates with four different retrieval approaches:
       #
@@ -2383,6 +2392,7 @@ module ActiveRecord #:nodoc:
 
             if not value.is_a?(Hash)
               attr = attr.to_s
+              column = nil
 
               # Extract table name from qualified attribute names.
               if attr.include?('.') and top_level
@@ -2390,6 +2400,7 @@ module ActiveRecord #:nodoc:
                 attr_table_name = connection.quote_table_name(attr_table_name)
               else
                 attr_table_name = table_name
+                column = columns_hash[attr]
               end
 
               bind_value = value
@@ -2410,7 +2421,7 @@ module ActiveRecord #:nodoc:
                   end
                 end
               end
-              bind_variables << bind_value
+              bind_variables << ColumnAwareBindValue.new(bind_value, column)
 
               attribute_condition("#{attr_table_name}.#{connection.quote_column_name(attr)}", value)
             elsif top_level
@@ -2479,9 +2490,16 @@ module ActiveRecord #:nodoc:
           bind_vars.each do |var|
             next if var.is_a?(Hash)
 
-            if var.is_a?(Range)
-              expanded << var.first
-              expanded << var.last
+            bind_value = var.is_a?(ColumnAwareBindValue) ? var.value : var
+
+            if bind_value.is_a?(Range)
+              if var.is_a?(ColumnAwareBindValue)
+                expanded << ColumnAwareBindValue.new(bind_value.first, var.column)
+                expanded << ColumnAwareBindValue.new(bind_value.last, var.column)
+              else
+                expanded << bind_value.first
+                expanded << bind_value.last
+              end
             else
               expanded << var
             end
@@ -2491,14 +2509,20 @@ module ActiveRecord #:nodoc:
         end
 
         def quote_bound_value(value) #:nodoc:
+          column = nil
+          if value.is_a?(ColumnAwareBindValue)
+            column = value.column
+            value = value.value
+          end
+
           if value.respond_to?(:map) && !value.acts_like?(:string)
             if value.respond_to?(:empty?) && value.empty?
               connection.quote(nil)
             else
-              value.map { |v| connection.quote(v) }.join(',')
+              value.map { |v| connection.quote(v, column) }.join(',')
             end
           else
-            connection.quote(value)
+            connection.quote(value, column)
           end
         end
 

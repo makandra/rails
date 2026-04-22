@@ -351,7 +351,8 @@ module ActiveRecord
       end
 
       def check_int_in_range(value)
-        if value.to_int > 9223372036854775807 || value.to_int < -9223372036854775808
+        if ActiveRecord::Base.raise_int_wider_than_64bit && value.is_a?(Numeric) &&
+          (value.to_int > 9223372036854775807 || value.to_int < -9223372036854775808)
           exception = <<-ERROR
             Provided value outside of the range of a signed 64bit integer.
 
@@ -368,8 +369,10 @@ module ActiveRecord
 
       # Quotes PostgreSQL-specific data types for SQL input.
       def quote(value, column = nil) #:nodoc:
-        if ActiveRecord::Base.raise_int_wider_than_64bit && value.is_a?(Integer)
+        if column.nil? && value.is_a?(Integer)
           check_int_in_range(value)
+        elsif column && column.type == :integer && (value.is_a?(String) || value.is_a?(Numeric))
+          check_int_in_range(value.to_i)
         end
 
         if value.kind_of?(String) && column && column.type == :binary
