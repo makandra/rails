@@ -406,6 +406,10 @@ module ActiveRecord
           end
         end
 
+        if RUBY_VERSION >= '2.7'
+          ruby2_keywords :method_missing
+        end
+
         # overloaded in derived Association classes to provide useful scoping depending on association type.
         def construct_scope
           {}

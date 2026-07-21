@@ -224,6 +224,10 @@ module ActiveRecord
           end
         end
 
+        if RUBY_VERSION >= '2.7'
+          ruby2_keywords :method_missing
+        end
+
         # Loads the \target if needed and returns it.
         #
         # This method is abstract in the sense that it relies on +find_target+,
