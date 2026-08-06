@@ -31,7 +31,9 @@ Rake::TestTask.new { |t|
   t.libs << activesupport_path if File.directory?(activesupport_path)
   t.libs << "test"
   t.pattern = 'test/**/*_test.rb'
-  t.verbose = true
+  # Rails LTS: not t.verbose = true. rake 13.3 started reading that as "pass -v
+  # to the test runner", which prints a line per test and buries the failures.
+  t.verbose = false
   t.warning = false
 }
 

@@ -1,3 +1,4 @@
+require File.expand_path('../../../test_warnings', __FILE__)
 $:.unshift File.expand_path('../../../activesupport/lib', __FILE__)
 $:.unshift File.expand_path('../../../activerecord/lib', __FILE__)
 $:.unshift File.expand_path('../../../actionpack/lib', __FILE__)

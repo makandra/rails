@@ -1,3 +1,4 @@
+require File.expand_path('../../../../test_warnings', __FILE__)
 $:.unshift(File.dirname(__FILE__) + '/../../lib')
 $:.unshift(File.dirname(__FILE__) + '/../../../activesupport/lib')
 $:.unshift(File.dirname(__FILE__) + '/../../../railties/lib')

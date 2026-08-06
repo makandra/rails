@@ -1,3 +1,4 @@
+require File.expand_path('../../../test_warnings', __FILE__)
 require 'rubygems'
 require 'test/unit'
 

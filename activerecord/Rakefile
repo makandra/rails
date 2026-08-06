@@ -67,7 +67,9 @@ for adapter in %w( mysql mysql2 postgresql sqlite sqlite3 firebird db2 oracle sy
     ruby_3_code = RUBY_VERSION >= "2" ? [] : Dir.glob('test/cases/ruby_3/**/*_test.rb')
     test_files = Dir.glob( "test/cases/**/*_test{,_#{adapter_short}}.rb" ) - ruby_3_code
     t.test_files = test_files.sort
-    t.verbose = true
+    # Rails LTS: not t.verbose = true. rake 13.3 started reading that as "pass -v
+    # to the test runner", which prints a line per test and buries the failures.
+    t.verbose = false
     t.warning = false
   }
 

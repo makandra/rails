@@ -55,7 +55,9 @@ module RailsLts
           ENCODE   = '%%%02X'.freeze
           US_ASCII = Encoding::US_ASCII
           UTF_8    = Encoding::UTF_8
-          EMPTY    = ''.force_encoding(US_ASCII).freeze
+          # Rails LTS: dup because force_encoding mutates, and mutating a string
+          # literal warns from Ruby 3.4 on.
+          EMPTY    = ''.dup.force_encoding(US_ASCII).freeze
           DEC2HEX  = (0..255).to_a.map { |i| ENCODE % i }.map { |s| s.force_encoding(US_ASCII) }.freeze
 
           ALPHA = "a-zA-Z".freeze
