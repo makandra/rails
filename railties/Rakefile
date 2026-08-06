@@ -307,13 +307,14 @@ spec = Gem::Specification.new do |s|
   s.add_dependency('actionpack',       "= #{RailsLts::VERSION::STRING}")
 
   s.rdoc_options << '--exclude' << '.'
-  s.has_rdoc = false
+  # Rails LTS: RubyGems 4 dropped these setters. Packaging still runs on 1.8.30.
+  s.has_rdoc = false if s.respond_to?(:has_rdoc=)
 
   s.files = PKG_FILES
   s.require_path = 'lib'
   s.bindir = "bin"                               # Use these for applications.
   s.executables = ["rails"]
-  s.default_executable = "rails"
+  s.default_executable = "rails" if s.respond_to?(:default_executable=)
 
   s.author = "David Heinemeier Hansson"
   s.email = "david@loudthinking.com"

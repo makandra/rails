@@ -200,14 +200,15 @@ spec = Gem::Specification.new do |s|
   s.require_path = 'lib'
   s.autorequire = 'active_record'
 
-  s.has_rdoc = true
+  # Rails LTS: RubyGems 4 dropped these setters. Packaging still runs on 1.8.30.
+  s.has_rdoc = true if s.respond_to?(:has_rdoc=)
   s.extra_rdoc_files = %w( README )
   s.rdoc_options.concat ['--main',  'README']
 
   s.author = "David Heinemeier Hansson"
   s.email = "david@loudthinking.com"
   s.homepage = "http://www.rubyonrails.org"
-  s.rubyforge_project = "activerecord"
+  s.rubyforge_project = "activerecord" if s.respond_to?(:rubyforge_project=)
 end
 
 package_task = Gem::PackageTask

@@ -68,7 +68,9 @@ module ActiveSupport
         end
 
         def extract_callstack(callstack)
-          if md = callstack.first.match(/^(.+?):(\d+)(?::in `(.*?)')?/)
+          # Rails LTS: Ruby 3.4 changed backtrace entries from "in `method'" to
+          # "in 'Class#method'", so accept either opening quote.
+          if md = callstack.first.match(/^(.+?):(\d+)(?::in [`'](.*?)')?/)
             md.captures
           else
             callstack.first

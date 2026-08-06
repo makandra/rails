@@ -40,12 +40,13 @@ spec = Gem::Specification.new do |s|
 
   s.files = [ "CHANGELOG", "README", "LICENSE" ] + Dir.glob( "lib/**/*" ).delete_if { |item| item.include?( "\.svn" ) }
   s.require_path = 'lib'
-  s.has_rdoc = true
+  # Rails LTS: RubyGems 4 dropped these setters. Packaging still runs on 1.8.30.
+  s.has_rdoc = true if s.respond_to?(:has_rdoc=)
 
   s.author = "David Heinemeier Hansson"
   s.email = "david@loudthinking.com"
   s.homepage = "http://www.rubyonrails.org"
-  s.rubyforge_project = "activesupport"
+  s.rubyforge_project = "activesupport" if s.respond_to?(:rubyforge_project=)
 end
 
 package_task = Gem::PackageTask

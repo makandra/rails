@@ -37,12 +37,13 @@ spec = Gem::Specification.new do |s|
 
   s.author = "David Heinemeier Hansson"
   s.email = "david@loudthinking.com"
-  s.rubyforge_project = "actionmailer"
+  # Rails LTS: RubyGems 4 dropped these setters. Packaging still runs on 1.8.30.
+  s.rubyforge_project = "actionmailer" if s.respond_to?(:rubyforge_project=)
   s.homepage = "http://www.rubyonrails.org"
 
   s.add_dependency('actionpack', "= #{PKG_VERSION}")
 
-  s.has_rdoc = true
+  s.has_rdoc = true if s.respond_to?(:has_rdoc=)
   s.requirements << 'none'
   s.require_path = 'lib'
   s.autorequire = 'action_mailer'
