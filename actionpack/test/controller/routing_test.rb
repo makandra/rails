@@ -1097,19 +1097,19 @@ class LegacyRouteSetTests < ActiveSupport::TestCase
     exception = assert_raise(ActionController::RoutingError) { rs.generate(:controller => 'post', :action => 'show', :bad_param => "foo", :use_route => "post") }
     assert_match(/^post_url failed to generate/, exception.message)
     from_match = exception.message.match(/from \{[^\}]+\}/).to_s
-    assert_match(/:bad_param=>"foo"/,   from_match)
-    assert_match(/:action=>"show"/,     from_match)
-    assert_match(/:controller=>"post"/, from_match)
+    assert_match(pair_pattern(:bad_param, "foo"),   from_match)
+    assert_match(pair_pattern(:action, "show"),     from_match)
+    assert_match(pair_pattern(:controller, "post"), from_match)
 
     expected_match = exception.message.match(/expected: \{[^\}]+\}/).to_s
-    assert_no_match(/:bad_param=>"foo"/,   expected_match)
-    assert_match(   /:action=>"show"/,     expected_match)
-    assert_match(   /:controller=>"post"/, expected_match)
+    assert_no_match(pair_pattern(:bad_param, "foo"),   expected_match)
+    assert_match(   pair_pattern(:action, "show"),     expected_match)
+    assert_match(   pair_pattern(:controller, "post"), expected_match)
 
     diff_match = exception.message.match(/diff: \{[^\}]+\}/).to_s
-    assert_match(   /:bad_param=>"foo"/,   diff_match)
-    assert_no_match(/:action=>"show"/,     diff_match)
-    assert_no_match(/:controller=>"post"/, diff_match)
+    assert_match(   pair_pattern(:bad_param, "foo"),   diff_match)
+    assert_no_match(pair_pattern(:action, "show"),     diff_match)
+    assert_no_match(pair_pattern(:controller, "post"), diff_match)
   end
 
   # this specifies the case where your formerly would get a very confusing error message with an empty diff
@@ -1119,8 +1119,8 @@ class LegacyRouteSetTests < ActiveSupport::TestCase
     end
 
     exception = assert_raise(ActionController::RoutingError) { rs.generate(:controller => 'content', :action => 'show', :use_route => "content") }
-    assert_match %r[:action=>"show"], exception.message
-    assert_match %r[:controller=>"content"], exception.message
+    assert_match pair_pattern(:action, "show"), exception.message
+    assert_match pair_pattern(:controller, "content"), exception.message
     assert_match %r[you may have ambiguous routes, or you may need to supply additional parameters for this route], exception.message
     assert_match %r[content_url has the following required parameters: \["content", :query\] - are they all satisfied?], exception.message
   end

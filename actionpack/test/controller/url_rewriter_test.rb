@@ -89,7 +89,7 @@ class UrlRewriterTests < ActionController::TestCase
     @params[:action] = 'bye'
     @request.parameters[:id] = '2'
 
-    assert_equal 'http://, test.host, /, hi, bye, {"id"=>"2"}', @rewriter.to_str
+    assert_equal "http://, test.host, /, hi, bye, {#{inspected_pair('id', '2')}}", @rewriter.to_str
   end
 
   def test_trailing_slash

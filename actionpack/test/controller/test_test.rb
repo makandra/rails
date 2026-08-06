@@ -401,7 +401,7 @@ XML
       $stderr = STDERR
     end
 
-    assert err.empty?
+    assert err.empty?, err.inspect
   end
 
   def test_assert_tag_attribute_matching

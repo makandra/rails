@@ -32,7 +32,7 @@ class FilterParamsIntegrationTest < ActionController::IntegrationTest
       get "/test", 'password=123'
       assert_response :ok
 
-      assert_match /"password"=>"\[FILTERED\]"/, TestController.io.string
+      assert_match Regexp.new(Regexp.escape(inspected_pair('password', '[FILTERED]'))), TestController.io.string
     end
   end
 end

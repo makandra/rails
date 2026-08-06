@@ -172,7 +172,9 @@ module HTML #:nodoc:
               value = true
               if scanner.scan(/\s*=\s*/)
                 if delim = scanner.scan(/['"]/)
-                  value = ""
+                  # Rails LTS: see the note in tokenizer.rb — appending to a
+                  # string literal warns from Ruby 3.4 on.
+                  value = "".dup
                   while text = scanner.scan(/[^#{delim}\\]+|./)
                     case text
                       when "\\" then

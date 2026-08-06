@@ -12,7 +12,10 @@ gem 'fcgi'
 
 # Rack
 gem 'bacon'
-gem 'thin'
+# Our vendored Rack 1.4 has a handler for thin 1.x. thin 2.0 stopped putting
+# HTTP_VERSION in the env, which spec_thin asserts on, and is not a combination
+# anyone runs Rails 2.3 in. Every Ruby but 4.0 already resolves to 1.8.2.
+gem 'thin', '< 2'
 
 if RUBY_VERSION < '2'
   gem 'daemons', '< 1.4'
@@ -89,6 +92,10 @@ if RUBY_VERSION >= '4'
   gem 'logger'
   gem 'ostruct'
   gem 'pstore'
+  # Ruby 4.0 only builds in the escaping half of cgi. CGI::QueryExtension,
+  # CGI::Cookie and CGI.rfc1123_date, which our pre-Rack CGI adapter patches,
+  # now come from the gem.
+  gem 'cgi'
 end
 
 gem 'libxml-ruby', '=3.0.0'

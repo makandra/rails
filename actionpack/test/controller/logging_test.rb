@@ -31,7 +31,7 @@ class LoggingTest < ActionController::TestCase
     assert_equal 3, logs.size
 
     params = logs.detect {|l| l =~ /Parameters/ }
-    assert_equal 'Parameters: {"id"=>"10"}', params
+    assert_equal "Parameters: {#{inspected_pair('id', '10')}}", params
   end
   
   private

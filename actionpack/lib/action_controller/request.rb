@@ -503,7 +503,10 @@ EOM
         return params unless ActiveSupport.modern_ruby?
 
         if params.is_a?(String)
-          return params.force_encoding("UTF-8").encode!
+          # Rails LTS: a param can be a string Ruby refuses to let us modify —
+          # Symbol#to_s returns a frozen one from Ruby 4 on. Re-encode a copy and
+          # let the callers below store it back.
+          return params.dup.force_encoding("UTF-8").encode!
         elsif !params.is_a?(Hash)
           return params
         end
@@ -515,7 +518,7 @@ EOM
           when Array
             v.map! {|el| encode_params(el) }
           else
-            encode_params(v)
+            params[k] = encode_params(v)
           end
         end
       end

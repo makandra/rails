@@ -100,3 +100,15 @@ end
 ActionController::Reloader.default_lock = DummyMutex.new
 
 Rack::Session::Abstract::ID::DEFAULT_OPTIONS[:sidbits] = 32 # 128 causes a core dump on CI
+
+# Rails LTS: Ruby 3.4 changed how Hash#inspect renders a pair twice over —
+# {"a"=>1} gained spaces around the arrow, and {:a=>1} became {a: 1}. Tests that
+# assert on an inspected hash ask for the current rendering of one pair rather
+# than hardcoding a format that only holds on some Rubies.
+def inspected_pair(key, value)
+  { key => value }.inspect[1...-1]
+end
+
+def pair_pattern(key, value)
+  Regexp.new(Regexp.escape(inspected_pair(key, value)))
+end

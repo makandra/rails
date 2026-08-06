@@ -161,7 +161,8 @@ module RenderTestCases
     @view.render(:partial => "test/raise")
     flunk "Render did not raise TemplateError"
   rescue ActionView::TemplateError => e
-    assert_match "undefined local variable or method `doesnt_exist'", e.message
+    # Ruby 3.4 changed the quoting, and appends " for an instance of ...".
+    assert_match(/undefined local variable or method [`']doesnt_exist'/, e.message)
     assert_equal "", e.sub_template_message
     assert_equal "1", e.line_number
     assert e.file_name.end_with?("test/_raise.html.erb")
@@ -187,7 +188,8 @@ module RenderTestCases
     @view.render(:file => "test/sub_template_raise")
     flunk "Render did not raise TemplateError"
   rescue ActionView::TemplateError => e
-    assert_match "undefined local variable or method `doesnt_exist'", e.message
+    # Ruby 3.4 changed the quoting, and appends " for an instance of ...".
+    assert_match(/undefined local variable or method [`']doesnt_exist'/, e.message)
     assert_match(/Trace of template inclusion: .*test\/sub_template_raise\.html\.erb/, e.sub_template_message)
     assert_equal "1", e.line_number
     assert e.file_name.end_with?("test/_raise.html.erb")
@@ -273,7 +275,7 @@ module RenderTestCases
 
   def test_render_legacy_handler_with_custom_type
     ActionView::Template.register_template_handler :foo, LegacyHandler
-    assert_equal 'source: Hello, <%= name %>!; locals: {:name=>"Josh"}', @view.render(:inline => "Hello, <%= name %>!", :locals => { :name => "Josh" }, :type => :foo)
+    assert_equal "source: Hello, <%= name %>!; locals: {#{inspected_pair(:name, 'Josh')}}", @view.render(:inline => "Hello, <%= name %>!", :locals => { :name => "Josh" }, :type => :foo)
   end
 
   def test_render_ignores_templates_with_malformed_template_handlers

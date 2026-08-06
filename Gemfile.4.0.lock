@@ -36,6 +36,7 @@ GEM
     base64 (0.3.0)
     benchmark (0.5.0)
     bigdecimal (4.1.2)
+    cgi (0.5.2)
     csv (3.3.6)
     daemons (1.4.1)
     drb (2.2.3)
@@ -72,11 +73,10 @@ GEM
     sqlite3 (1.4.2)
     test-unit (3.6.2)
       power_assert
-    thin (2.0.1)
+    thin (1.8.2)
       daemons (~> 1.0, >= 1.0.9)
       eventmachine (~> 1.0, >= 1.0.4)
-      logger
-      rack (>= 1, < 4)
+      rack (>= 1, < 3)
     timeout (0.6.1)
     webrick (1.9.2)
 
@@ -90,6 +90,7 @@ DEPENDENCIES
   base64
   benchmark
   bigdecimal
+  cgi
   csv
   drb
   fcgi
@@ -113,7 +114,7 @@ DEPENDENCIES
   ruby3-backward-compatibility
   sqlite3 (= 1.4.2)
   test-unit (<= 3.6.2)
-  thin
+  thin (< 2)
   webrick
 
 CHECKSUMS
@@ -127,6 +128,7 @@ CHECKSUMS
   base64 (0.3.0) sha256=27337aeabad6ffae05c265c450490628ef3ebd4b67be58257393227588f5a97b
   benchmark (0.5.0) sha256=465df122341aedcb81a2a24b4d3bd19b6c67c1530713fd533f3ff034e419236c
   bigdecimal (4.1.2) sha256=53d217666027eab4280346fba98e7d5b66baaae1b9c3c1c0ffe89d48188a3fbd
+  cgi (0.5.2) sha256=61ca30298171190fd4fa0d8018e57ada456eae9b7a2b78526debf7f0a0e6f8bb
   csv (3.3.6) sha256=aba61e7e507a66f03d45cb1f3c4b6359861c3504038b422962875dce099e4456
   daemons (1.4.1) sha256=8fc76d76faec669feb5e455d72f35bd4c46dc6735e28c420afb822fac1fa9a1d
   drb (2.2.3) sha256=0b00d6fdb50995fe4a45dea13663493c841112e4068656854646f418fda13373
@@ -159,7 +161,7 @@ CHECKSUMS
   ruby3-backward-compatibility (1.5.1) sha256=6d9fce1cc0e06f3843b14f54d34592d3ab0d367208c2149bfc6a409e9fedb9a4
   sqlite3 (1.4.2) sha256=e8b8ef3b0f75c18e1a7ee62c5678c827e99389e53fa55eb7a9a5f57459004a52
   test-unit (3.6.2) sha256=3ce480c23990ca504a3f0d6619be2a560e21326cefd1b86d0f9433c387f26039
-  thin (2.0.1) sha256=5bbde5648377f5c3864b5da7cd89a23b5c2d8d8bb9435719f6db49644bcdade9
+  thin (1.8.2) sha256=1c55251aba5bee7cf6936ea18b048f4d3c74ef810aa5e6906cf6edff0df6e121
   timeout (0.6.1) sha256=78f57368a7e7bbadec56971f78a3f5ecbcfb59b7fcbb0a3ed6ddc08a5094accb
   webrick (1.9.2) sha256=beb4a15fc474defed24a3bda4ffd88a490d517c9e4e6118c3edce59e45864131
 

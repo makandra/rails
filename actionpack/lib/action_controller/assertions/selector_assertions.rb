@@ -323,7 +323,9 @@ module ActionController
       end
 
       def count_description(min, max) #:nodoc:
-        pluralize = lambda {|word, quantity| word << (quantity == 1 ? '' : 's')}
+        # Rails LTS: this used to append to the caller's string in place, which
+        # warns on a string literal from Ruby 3.4 on.
+        pluralize = lambda {|word, quantity| word + (quantity == 1 ? '' : 's')}
 
         if min && max && (max != min)
           "between #{min} and #{max} elements"

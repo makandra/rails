@@ -76,7 +76,7 @@ DEPENDENCIES
   rdoc (= 2.5.11)
   sqlite3 (= 1.3.13)
   test-unit
-  thin
+  thin (< 2)
   webrick
 
 BUNDLED WITH

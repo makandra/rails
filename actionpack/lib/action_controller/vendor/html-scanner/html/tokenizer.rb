@@ -78,7 +78,10 @@ module HTML #:nodoc:
       # Skips over quoted strings, so that less-than and greater-than characters
       # within the strings are ignored.
       def consume_quoted_regions
-        text = ""
+        # Rails LTS: appending to a string literal warns from Ruby 3.4 on, and
+        # will raise once literals are frozen. String.new is not a substitute —
+        # it would hand us an ASCII-8BIT buffer.
+        text = "".dup
         loop do
           match = @scanner.scan_until(/['"<>]/) or break
 
