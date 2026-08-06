@@ -101,7 +101,7 @@ DEPENDENCIES
   rexml
   ruby3-backward-compatibility
   sqlite3 (= 1.4.2)
-  test-unit
+  test-unit (<= 3.6.2)
   thin
   webrick
 

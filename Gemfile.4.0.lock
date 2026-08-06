@@ -1,0 +1,167 @@
+PATH
+  remote: .
+  specs:
+    actionmailer (2.3.18.63)
+      actionpack (= 2.3.18.63)
+    actionpack (2.3.18.63)
+      activesupport (= 2.3.18.63)
+      rack (< 1.5)
+    activerecord (2.3.18.63)
+      activesupport (= 2.3.18.63)
+    activeresource (2.3.18.63)
+      activesupport (= 2.3.18.63)
+    activesupport (2.3.18.63)
+    rails (2.3.18.63)
+      actionmailer (= 2.3.18.63)
+      actionpack (= 2.3.18.63)
+      activerecord (= 2.3.18.63)
+      activeresource (= 2.3.18.63)
+      activesupport (= 2.3.18.63)
+      railties (= 2.3.18.63)
+    railties (2.3.18.63)
+      actionpack (= 2.3.18.63)
+      activesupport (= 2.3.18.63)
+      rake (>= 0.8.3)
+
+PATH
+  remote: rack
+  specs:
+    rack (1.4.7.29)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    RedCloth (4.3.4)
+    bacon (1.2.0)
+    base64 (0.3.0)
+    benchmark (0.5.0)
+    bigdecimal (4.1.2)
+    csv (3.3.6)
+    daemons (1.4.1)
+    drb (2.2.3)
+    eventmachine (1.2.7)
+    fcgi (0.9.2.2)
+    libxml-ruby (3.0.0)
+    logger (1.7.0)
+    memcache-client (1.8.5)
+    mini_portile2 (2.8.9)
+    mocha (0.9.7)
+      rake
+    mutex_m (0.3.0)
+    mysql2 (0.5.7)
+      bigdecimal
+    net-protocol (0.2.2)
+      timeout
+    net-smtp (0.5.1)
+      net-protocol
+    nkf (0.3.0)
+    nokogiri (1.13.6)
+      mini_portile2 (~> 2.8.0)
+      racc (~> 1.4)
+    observer (0.1.2)
+    ostruct (0.6.3)
+    pg (1.6.3)
+    pg (1.6.3-x86_64-linux)
+    power_assert (3.0.1)
+    pstore (0.2.1)
+    racc (1.8.1)
+    rake (13.4.2)
+    rdoc (2.5.11)
+    rexml (3.4.4)
+    ruby3-backward-compatibility (1.5.1)
+    sqlite3 (1.4.2)
+    test-unit (3.6.2)
+      power_assert
+    thin (2.0.1)
+      daemons (~> 1.0, >= 1.0.9)
+      eventmachine (~> 1.0, >= 1.0.4)
+      logger
+      rack (>= 1, < 4)
+    timeout (0.6.1)
+    webrick (1.9.2)
+
+PLATFORMS
+  ruby
+  x86_64-linux
+
+DEPENDENCIES
+  RedCloth
+  bacon
+  base64
+  benchmark
+  bigdecimal
+  csv
+  drb
+  fcgi
+  libxml-ruby (= 3.0.0)
+  logger
+  memcache-client
+  mocha (= 0.9.7)
+  mutex_m
+  mysql2
+  net-smtp
+  nkf
+  nokogiri (= 1.13.6)
+  observer
+  ostruct
+  pg
+  pstore
+  rack!
+  rails!
+  rdoc (= 2.5.11)
+  rexml
+  ruby3-backward-compatibility
+  sqlite3 (= 1.4.2)
+  test-unit (<= 3.6.2)
+  thin
+  webrick
+
+CHECKSUMS
+  RedCloth (4.3.4) sha256=5231b2fdd91a933915cba330e5fd1a74025e77b56f57b7404c7191ebf2812297
+  actionmailer (2.3.18.63)
+  actionpack (2.3.18.63)
+  activerecord (2.3.18.63)
+  activeresource (2.3.18.63)
+  activesupport (2.3.18.63)
+  bacon (1.2.0) sha256=51d52d72a61729668ade581fe68fb10b9654027d2ac73203fbbcae73647b06b8
+  base64 (0.3.0) sha256=27337aeabad6ffae05c265c450490628ef3ebd4b67be58257393227588f5a97b
+  benchmark (0.5.0) sha256=465df122341aedcb81a2a24b4d3bd19b6c67c1530713fd533f3ff034e419236c
+  bigdecimal (4.1.2) sha256=53d217666027eab4280346fba98e7d5b66baaae1b9c3c1c0ffe89d48188a3fbd
+  csv (3.3.6) sha256=aba61e7e507a66f03d45cb1f3c4b6359861c3504038b422962875dce099e4456
+  daemons (1.4.1) sha256=8fc76d76faec669feb5e455d72f35bd4c46dc6735e28c420afb822fac1fa9a1d
+  drb (2.2.3) sha256=0b00d6fdb50995fe4a45dea13663493c841112e4068656854646f418fda13373
+  eventmachine (1.2.7) sha256=994016e42aa041477ba9cff45cbe50de2047f25dd418eba003e84f0d16560972
+  fcgi (0.9.2.2) sha256=0be03c012267ad192c4367871b41dda66204992c5f885011e61ad4ca03dd0dc0
+  libxml-ruby (3.0.0) sha256=a45cd7e7b042dbf9ebd98bb15086dffd7ec92c3a461010bf19db32c965e5c877
+  logger (1.7.0) sha256=196edec7cc44b66cfb40f9755ce11b392f21f7967696af15d274dde7edff0203
+  memcache-client (1.8.5) sha256=1a2d57e9bc0d00553aef16ee9413e2656f07e53cf569eb6e2d795f0d9c85d285
+  mini_portile2 (2.8.9) sha256=0cd7c7f824e010c072e33f68bc02d85a00aeb6fce05bb4819c03dfd3c140c289
+  mocha (0.9.7) sha256=e363f1c22c36262049c29d7576ed12c007299f536fa1b6a00fa3871540e832da
+  mutex_m (0.3.0) sha256=cfcb04ac16b69c4813777022fdceda24e9f798e48092a2b817eb4c0a782b0751
+  mysql2 (0.5.7) sha256=ba09ede515a0ae8a7192040a1b778c0fb0f025fa5877e9be895cd325fa5e9d7b
+  net-protocol (0.2.2) sha256=aa73e0cba6a125369de9837b8d8ef82a61849360eba0521900e2c3713aa162a8
+  net-smtp (0.5.1) sha256=ed96a0af63c524fceb4b29b0d352195c30d82dd916a42f03c62a3a70e5b70736
+  nkf (0.3.0) sha256=357a8dbeba38b727b75930f665146546076a394a1c243faf634ff176e3588895
+  nokogiri (1.13.6) sha256=b1512fdc0aba446e1ee30de3e0671518eb363e75fab53486e99e8891d44b8587
+  observer (0.1.2) sha256=d8a3107131ba661138d748e7be3dbafc0d82e732fffba9fccb3d7829880950ac
+  ostruct (0.6.3) sha256=95a2ed4a4bd1d190784e666b47b2d3f078e4a9efda2fccf18f84ddc6538ed912
+  pg (1.6.3) sha256=1388d0563e13d2758c1089e35e973a3249e955c659592d10e5b77c468f628a99
+  pg (1.6.3-x86_64-linux) sha256=5d9e188c8f7a0295d162b7b88a768d8452a899977d44f3274d1946d67920ae8d
+  power_assert (3.0.1) sha256=8ce9876716cc74e863fcd4cdcdc52d792bd983598d1af3447083a3a9a4d34103
+  pstore (0.2.1) sha256=03904d0f2c66579e96d1e6704cdabc0c88df7ea8ed8782d9f3569f6f6c702c1a
+  racc (1.8.1) sha256=4a7f6929691dbec8b5209a0b373bc2614882b55fc5d2e447a21aaa691303d62f
+  rack (1.4.7.29)
+  rails (2.3.18.63)
+  railties (2.3.18.63)
+  rake (13.4.2) sha256=cb825b2bd5f1f8e91ca37bddb4b9aaf345551b4731da62949be002fa89283701
+  rdoc (2.5.11) sha256=8f45be63d5cd73e97f34427f055cd5ad24ec7c193131c342c529babd98589421
+  rexml (3.4.4) sha256=19e0a2c3425dfbf2d4fc1189747bdb2f849b6c5e74180401b15734bc97b5d142
+  ruby3-backward-compatibility (1.5.1) sha256=6d9fce1cc0e06f3843b14f54d34592d3ab0d367208c2149bfc6a409e9fedb9a4
+  sqlite3 (1.4.2) sha256=e8b8ef3b0f75c18e1a7ee62c5678c827e99389e53fa55eb7a9a5f57459004a52
+  test-unit (3.6.2) sha256=3ce480c23990ca504a3f0d6619be2a560e21326cefd1b86d0f9433c387f26039
+  thin (2.0.1) sha256=5bbde5648377f5c3864b5da7cd89a23b5c2d8d8bb9435719f6db49644bcdade9
+  timeout (0.6.1) sha256=78f57368a7e7bbadec56971f78a3f5ecbcfb59b7fcbb0a3ed6ddc08a5094accb
+  webrick (1.9.2) sha256=beb4a15fc474defed24a3bda4ffd88a490d517c9e4e6118c3edce59e45864131
+
+BUNDLED WITH
+  4.0.16

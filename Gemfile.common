@@ -51,7 +51,12 @@ end
 if RUBY_VERSION >= '3'
   gem 'pg'
   gem 'nokogiri', '=1.13.6'
-  gem 'test-unit'
+  # From 3.6.3 on, test-unit prints every test's elapsed time in verbose mode.
+  # mocha 0.9.7 replaces Test::Unit::TestCase#run with a copy that never records
+  # one, so the runner dies with "can't convert nil into Float". 3.6.2 is what
+  # the Ruby 3.1 and 3.3 lockfiles hold anyway; lifting this pin means dealing
+  # with mocha first.
+  gem 'test-unit', '<= 3.6.2'
 elsif RUBY_VERSION >= '2'
   # just to get some variety of rake versions in our tests
   if RUBY_VERSION >= '2.5'
@@ -76,6 +81,14 @@ if RUBY_VERSION >= '3.3'
   gem 'mutex_m'
   gem 'nkf'
   gem 'observer'
+end
+
+if RUBY_VERSION >= '4'
+  # another batch of stdlib turned into bundled gems in Ruby 4.0
+  gem 'benchmark'
+  gem 'logger'
+  gem 'ostruct'
+  gem 'pstore'
 end
 
 gem 'libxml-ruby', '=3.0.0'
