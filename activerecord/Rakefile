@@ -77,16 +77,22 @@ for adapter in %w( mysql mysql2 postgresql sqlite sqlite3 firebird db2 oracle sy
 end
 
 namespace :mysql do
+  # Rails LTS: our MySQL service containers are old enough that OpenSSL 3 rejects
+  # the TLS they offer. There is nothing to protect on a throwaway test database
+  # in the same Docker network, so connect without it. Every client we ship has
+  # understood --ssl-mode since MySQL 5.7.11.
+  MYSQL_CLIENT_SSL = '--ssl-mode=DISABLED'
+
   desc 'Build the MySQL test databases'
   task :build_databases do
-    %x( echo "create DATABASE activerecord_unittest DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_unicode_ci " | mysql --user=#{MYSQL_DB_USER} --host=#{MYSQL_DB_HOST})
-    %x( echo "create DATABASE activerecord_unittest2 DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_unicode_ci " | mysql --user=#{MYSQL_DB_USER} --host=#{MYSQL_DB_HOST})
+    %x( echo "create DATABASE activerecord_unittest DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_unicode_ci " | mysql #{MYSQL_CLIENT_SSL} --user=#{MYSQL_DB_USER} --host=#{MYSQL_DB_HOST})
+    %x( echo "create DATABASE activerecord_unittest2 DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_unicode_ci " | mysql #{MYSQL_CLIENT_SSL} --user=#{MYSQL_DB_USER} --host=#{MYSQL_DB_HOST})
   end
 
   desc 'Drop the MySQL test databases'
   task :drop_databases do
-    %x( mysqladmin --user=#{MYSQL_DB_USER} --host=#{MYSQL_DB_HOST} -f drop activerecord_unittest )
-    %x( mysqladmin --user=#{MYSQL_DB_USER} --host=#{MYSQL_DB_HOST} -f drop activerecord_unittest2 )
+    %x( mysqladmin #{MYSQL_CLIENT_SSL} --user=#{MYSQL_DB_USER} --host=#{MYSQL_DB_HOST} -f drop activerecord_unittest )
+    %x( mysqladmin #{MYSQL_CLIENT_SSL} --user=#{MYSQL_DB_USER} --host=#{MYSQL_DB_HOST} -f drop activerecord_unittest2 )
   end
 
   desc 'Rebuild the MySQL test databases'
