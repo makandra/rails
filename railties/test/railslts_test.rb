@@ -41,6 +41,24 @@ if RUBY_VERSION >= '3'
   gem 'i18n'
   gem 'racc'
 end
+
+# Stdlib that turned into bundled gems, which a booting Rails 2.3 app has to
+# ask for. Requiring one anyway was a warning until Ruby 4.0 made it a
+# LoadError, which is why this only guards the newest Ruby. Mirrors the
+# RUBY_VERSION >= '3.3' and >= '4' blocks in Gemfile.common.
+if RUBY_VERSION >= '4'
+  gem 'base64'
+  gem 'benchmark'
+  gem 'bigdecimal'
+  gem 'cgi'
+  gem 'csv'
+  gem 'drb'
+  gem 'logger'
+  gem 'mutex_m'
+  gem 'nkf'
+  gem 'observer'
+  gem 'ostruct'
+end
       GEMFILE
     end
   end

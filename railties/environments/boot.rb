@@ -81,7 +81,10 @@ module Rails
 
     class << self
       def rubygems_version
-        Gem::RubyGemsVersion rescue nil
+        # Rails LTS: RubyGems 4 removed Gem::RubyGemsVersion. Gem::VERSION says
+        # the same thing and goes back at least as far as the 1.8.30 that
+        # Ruby 1.8.7 ships.
+        Gem::VERSION rescue (Gem::RubyGemsVersion rescue nil)
       end
 
       def gem_version

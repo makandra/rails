@@ -1,5 +1,7 @@
 require 'test/unit'
 require 'fileutils'
+# Ruby 4 no longer pulls stringio in behind our backs.
+require 'stringio'
 
 # Mock out what we need from AR::Base
 module ActiveRecord
