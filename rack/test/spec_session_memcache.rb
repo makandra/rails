@@ -53,7 +53,7 @@ begin
       pool = Rack::Session::Memcache.new(incrementor)
       res = Rack::MockRequest.new(pool).get("/")
       res["Set-Cookie"].should.include("#{session_key}=")
-      res.body.should.equal '{"counter"=>1}'
+      res.body.should.equal({ 'counter' => 1 }.inspect)
     end
 
     it "determines session from a cookie" do
@@ -62,9 +62,9 @@ begin
       res = req.get("/")
       cookie = res["Set-Cookie"]
       req.get("/", "HTTP_COOKIE" => cookie).
-        body.should.equal '{"counter"=>2}'
+        body.should.equal({ 'counter' => 2 }.inspect)
       req.get("/", "HTTP_COOKIE" => cookie).
-        body.should.equal '{"counter"=>3}'
+        body.should.equal({ 'counter' => 3 }.inspect)
     end
 
     it "determines session only from a cookie by default" do
@@ -73,9 +73,9 @@ begin
       res = req.get("/")
       sid = res["Set-Cookie"][session_match, 1]
       req.get("/?rack.session=#{sid}").
-        body.should.equal '{"counter"=>1}'
+        body.should.equal({ 'counter' => 1 }.inspect)
       req.get("/?rack.session=#{sid}").
-        body.should.equal '{"counter"=>1}'
+        body.should.equal({ 'counter' => 1 }.inspect)
     end
 
     it "determines session from params" do
@@ -84,9 +84,9 @@ begin
       res = req.get("/")
       sid = res["Set-Cookie"][session_match, 1]
       req.get("/?rack.session=#{sid}").
-        body.should.equal '{"counter"=>2}'
+        body.should.equal({ 'counter' => 2 }.inspect)
       req.get("/?rack.session=#{sid}").
-        body.should.equal '{"counter"=>3}'
+        body.should.equal({ 'counter' => 3 }.inspect)
     end
 
     it "survives nonexistant cookies" do
@@ -94,7 +94,7 @@ begin
       pool = Rack::Session::Memcache.new(incrementor)
       res = Rack::MockRequest.new(pool).
         get("/", "HTTP_COOKIE" => bad_cookie)
-      res.body.should.equal '{"counter"=>1}'
+      res.body.should.equal({ 'counter' => 1 }.inspect)
       cookie = res["Set-Cookie"][session_match]
       cookie.should.not.match(/#{bad_cookie}/)
     end
@@ -102,16 +102,16 @@ begin
     it "maintains freshness" do
       pool = Rack::Session::Memcache.new(incrementor, :expire_after => 3)
       res = Rack::MockRequest.new(pool).get('/')
-      res.body.should.include '"counter"=>1'
+      res.body.should.include({ 'counter' => 1 }.inspect[1...-1])
       cookie = res["Set-Cookie"]
       res = Rack::MockRequest.new(pool).get('/', "HTTP_COOKIE" => cookie)
       res["Set-Cookie"].should.equal cookie
-      res.body.should.include '"counter"=>2'
+      res.body.should.include({ 'counter' => 2 }.inspect[1...-1])
       puts 'Sleeping to expire session' if $DEBUG
       sleep 4
       res = Rack::MockRequest.new(pool).get('/', "HTTP_COOKIE" => cookie)
       res["Set-Cookie"].should.not.equal cookie
-      res.body.should.include '"counter"=>1'
+      res.body.should.include({ 'counter' => 1 }.inspect[1...-1])
     end
 
     it "does not send the same session id if it did not change" do
@@ -120,15 +120,15 @@ begin
 
       res0 = req.get("/")
       cookie = res0["Set-Cookie"][session_match]
-      res0.body.should.equal '{"counter"=>1}'
+      res0.body.should.equal({ 'counter' => 1 }.inspect)
 
       res1 = req.get("/", "HTTP_COOKIE" => cookie)
       res1["Set-Cookie"].should.be.nil
-      res1.body.should.equal '{"counter"=>2}'
+      res1.body.should.equal({ 'counter' => 2 }.inspect)
 
       res2 = req.get("/", "HTTP_COOKIE" => cookie)
       res2["Set-Cookie"].should.be.nil
-      res2.body.should.equal '{"counter"=>3}'
+      res2.body.should.equal({ 'counter' => 3 }.inspect)
     end
 
     it "deletes cookies with :drop option" do
@@ -139,15 +139,15 @@ begin
 
       res1 = req.get("/")
       session = (cookie = res1["Set-Cookie"])[session_match]
-      res1.body.should.equal '{"counter"=>1}'
+      res1.body.should.equal({ 'counter' => 1 }.inspect)
 
       res2 = dreq.get("/", "HTTP_COOKIE" => cookie)
       res2["Set-Cookie"].should.equal nil
-      res2.body.should.equal '{"counter"=>2}'
+      res2.body.should.equal({ 'counter' => 2 }.inspect)
 
       res3 = req.get("/", "HTTP_COOKIE" => cookie)
       res3["Set-Cookie"][session_match].should.not.equal session
-      res3.body.should.equal '{"counter"=>1}'
+      res3.body.should.equal({ 'counter' => 1 }.inspect)
     end
 
     it "provides new session id with :renew option" do
@@ -158,20 +158,20 @@ begin
 
       res1 = req.get("/")
       session = (cookie = res1["Set-Cookie"])[session_match]
-      res1.body.should.equal '{"counter"=>1}'
+      res1.body.should.equal({ 'counter' => 1 }.inspect)
 
       res2 = rreq.get("/", "HTTP_COOKIE" => cookie)
       new_cookie = res2["Set-Cookie"]
       new_session = new_cookie[session_match]
       new_session.should.not.equal session
-      res2.body.should.equal '{"counter"=>2}'
+      res2.body.should.equal({ 'counter' => 2 }.inspect)
 
       res3 = req.get("/", "HTTP_COOKIE" => new_cookie)
-      res3.body.should.equal '{"counter"=>3}'
+      res3.body.should.equal({ 'counter' => 3 }.inspect)
 
       # Old cookie was deleted
       res4 = req.get("/", "HTTP_COOKIE" => cookie)
-      res4.body.should.equal '{"counter"=>1}'
+      res4.body.should.equal({ 'counter' => 1 }.inspect)
     end
 
     it "omits cookie with :defer option but still updates the state" do
@@ -183,13 +183,13 @@ begin
 
       res0 = dreq.get("/")
       res0["Set-Cookie"].should.equal nil
-      res0.body.should.equal '{"counter"=>1}'
+      res0.body.should.equal({ 'counter' => 1 }.inspect)
 
       res0 = creq.get("/")
       res1 = dreq.get("/", "HTTP_COOKIE" => res0["Set-Cookie"])
-      res1.body.should.equal '{"counter"=>2}'
+      res1.body.should.equal({ 'counter' => 2 }.inspect)
       res2 = dreq.get("/", "HTTP_COOKIE" => res0["Set-Cookie"])
-      res2.body.should.equal '{"counter"=>3}'
+      res2.body.should.equal({ 'counter' => 3 }.inspect)
     end
 
     it "omits cookie and state update with :skip option" do
@@ -201,13 +201,13 @@ begin
 
       res0 = sreq.get("/")
       res0["Set-Cookie"].should.equal nil
-      res0.body.should.equal '{"counter"=>1}'
+      res0.body.should.equal({ 'counter' => 1 }.inspect)
 
       res0 = creq.get("/")
       res1 = sreq.get("/", "HTTP_COOKIE" => res0["Set-Cookie"])
-      res1.body.should.equal '{"counter"=>2}'
+      res1.body.should.equal({ 'counter' => 2 }.inspect)
       res2 = sreq.get("/", "HTTP_COOKIE" => res0["Set-Cookie"])
-      res2.body.should.equal '{"counter"=>2}'
+      res2.body.should.equal({ 'counter' => 2 }.inspect)
     end
 
     it "updates deep hashes correctly" do
@@ -245,7 +245,7 @@ begin
       req = Rack::MockRequest.new(pool)
 
       res = req.get('/')
-      res.body.should.equal '{"counter"=>1}'
+      res.body.should.equal({ 'counter' => 1 }.inspect)
       cookie = res["Set-Cookie"]
       session_id = cookie[session_match, 1]
 
@@ -266,7 +266,7 @@ begin
       end.reverse.map{|t| t.run.join.value }
       r.each do |request|
         request['Set-Cookie'].should.equal cookie
-        request.body.should.include '"counter"=>2'
+        request.body.should.include({ 'counter' => 2 }.inspect[1...-1])
       end
 
       session = pool.pool.get(session_id)
@@ -283,7 +283,7 @@ begin
       end.reverse.map{|t| t.run.join.value }
       r.each do |request|
         request['Set-Cookie'].should.equal cookie
-        request.body.should.include '"counter"=>3'
+        request.body.should.include({ 'counter' => 3 }.inspect[1...-1])
       end
 
       session = pool.pool.get(session_id)
@@ -305,7 +305,7 @@ begin
       end.reverse.map{|t| t.run.join.value }
       r.each do |request|
         request['Set-Cookie'].should.equal cookie
-        request.body.should.include '"foo"=>"bar"'
+        request.body.should.include({ 'foo' => 'bar' }.inspect[1...-1])
       end
 
       session = pool.pool.get(session_id)

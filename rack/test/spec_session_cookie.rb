@@ -124,14 +124,14 @@ describe Rack::Session::Cookie do
     cookie = Rack::Session::Cookie.new(incrementor, :coder => identity)
     res = Rack::MockRequest.new(cookie).get("/")
     res["Set-Cookie"].should.include("rack.session=")
-    res.body.should.equal '{"counter"=>1}'
+    res.body.should.equal({ 'counter' => 1 }.inspect)
     identity.calls.should.equal [:decode, :encode]
   end
 
   it "creates a new cookie" do
     res = Rack::MockRequest.new(Rack::Session::Cookie.new(incrementor)).get("/")
     res["Set-Cookie"].should.include("rack.session=")
-    res.body.should.equal '{"counter"=>1}'
+    res.body.should.equal({ 'counter' => 1 }.inspect)
   end
 
   it "loads from a cookie" do
@@ -139,11 +139,11 @@ describe Rack::Session::Cookie do
     cookie = res["Set-Cookie"]
     res = Rack::MockRequest.new(Rack::Session::Cookie.new(incrementor)).
       get("/", "HTTP_COOKIE" => cookie)
-    res.body.should.equal '{"counter"=>2}'
+    res.body.should.equal({ 'counter' => 2 }.inspect)
     cookie = res["Set-Cookie"]
     res = Rack::MockRequest.new(Rack::Session::Cookie.new(incrementor)).
       get("/", "HTTP_COOKIE" => cookie)
-    res.body.should.equal '{"counter"=>3}'
+    res.body.should.equal({ 'counter' => 3 }.inspect)
   end
 
   renewer = lambda do |env|
@@ -175,11 +175,11 @@ describe Rack::Session::Cookie do
   it "survives broken cookies" do
     res = Rack::MockRequest.new(Rack::Session::Cookie.new(incrementor)).
       get("/", "HTTP_COOKIE" => "rack.session=blarghfasel")
-    res.body.should.equal '{"counter"=>1}'
+    res.body.should.equal({ 'counter' => 1 }.inspect)
 
     app = Rack::Session::Cookie.new(incrementor, :secret => 'test')
     res = Rack::MockRequest.new(app).get("/", "HTTP_COOKIE" => "rack.session=")
-    res.body.should.equal '{"counter"=>1}'
+    res.body.should.equal({ 'counter' => 1 }.inspect)
   end
 
   bigcookie = lambda do |env|
@@ -199,14 +199,14 @@ describe Rack::Session::Cookie do
     cookie = res["Set-Cookie"]
     res = Rack::MockRequest.new(Rack::Session::Cookie.new(incrementor, :secret => 'test')).
       get("/", "HTTP_COOKIE" => cookie)
-    res.body.should.equal '{"counter"=>2}'
+    res.body.should.equal({ 'counter' => 2 }.inspect)
     cookie = res["Set-Cookie"]
     res = Rack::MockRequest.new(Rack::Session::Cookie.new(incrementor, :secret => 'test')).
       get("/", "HTTP_COOKIE" => cookie)
-    res.body.should.equal '{"counter"=>3}'
+    res.body.should.equal({ 'counter' => 3 }.inspect)
     res = Rack::MockRequest.new(Rack::Session::Cookie.new(incrementor, :secret => 'other')).
       get("/", "HTTP_COOKIE" => cookie)
-    res.body.should.equal '{"counter"=>1}'
+    res.body.should.equal({ 'counter' => 1 }.inspect)
   end
 
   it "loads from a cookie wih accept-only integrity hash for graceful key rotation" do
@@ -214,19 +214,19 @@ describe Rack::Session::Cookie do
     cookie = res["Set-Cookie"]
     res = Rack::MockRequest.new(Rack::Session::Cookie.new(incrementor, :secret => 'test2', :old_secret => 'test')).
       get("/", "HTTP_COOKIE" => cookie)
-    res.body.should.equal '{"counter"=>2}'
+    res.body.should.equal({ 'counter' => 2 }.inspect)
     cookie = res["Set-Cookie"]
     res = Rack::MockRequest.new(Rack::Session::Cookie.new(incrementor, :secret => 'test3', :old_secret => 'test2')).
       get("/", "HTTP_COOKIE" => cookie)
-    res.body.should.equal '{"counter"=>3}'
+    res.body.should.equal({ 'counter' => 3 }.inspect)
   end
 
   it "ignores tampered with session cookies" do
     app = Rack::Session::Cookie.new(incrementor, :secret => 'test')
     response1 = Rack::MockRequest.new(app).get("/")
-    response1.body.should.equal '{"counter"=>1}'
+    response1.body.should.equal({ 'counter' => 1 }.inspect)
     response1 = Rack::MockRequest.new(app).get("/", "HTTP_COOKIE" => response1["Set-Cookie"])
-    response1.body.should.equal '{"counter"=>2}'
+    response1.body.should.equal({ 'counter' => 2 }.inspect)
 
     _, digest = response1["Set-Cookie"].split("--")
     tampered_with_cookie = "hackerman-was-here" + "--" + digest
@@ -234,20 +234,20 @@ describe Rack::Session::Cookie do
                                                tampered_with_cookie)
 
     # Tampered cookie was ignored. Counter is back to 1.
-    response2.body.should.equal '{"counter"=>1}'
+    response2.body.should.equal({ 'counter' => 1 }.inspect)
   end
 
   it "supports either of secret or old_secret" do
     app = Rack::Session::Cookie.new(incrementor, :secret => 'test')
     res = Rack::MockRequest.new(app).get("/")
-    res.body.should.equal '{"counter"=>1}'
+    res.body.should.equal({ 'counter' => 1 }.inspect)
     res = Rack::MockRequest.new(app).get("/", "HTTP_COOKIE" => res["Set-Cookie"])
-    res.body.should.equal '{"counter"=>2}'
+    res.body.should.equal({ 'counter' => 2 }.inspect)
     app = Rack::Session::Cookie.new(incrementor, :old_secret => 'test')
     res = Rack::MockRequest.new(app).get("/")
-    res.body.should.equal '{"counter"=>1}'
+    res.body.should.equal({ 'counter' => 1 }.inspect)
     res = Rack::MockRequest.new(app).get("/", "HTTP_COOKIE" => res["Set-Cookie"])
-    res.body.should.equal '{"counter"=>2}'
+    res.body.should.equal({ 'counter' => 2 }.inspect)
   end
 
   describe "1.9 bugs relating to inspecting yet-to-be-loaded from cookie data: Rack::Session::Abstract::SessionHash" do
@@ -285,12 +285,12 @@ describe Rack::Session::Cookie do
   it "returns the session id in the session hash" do
     app = Rack::Session::Cookie.new(incrementor)
     res = Rack::MockRequest.new(app).get("/")
-    res.body.should.equal '{"counter"=>1}'
+    res.body.should.equal({ 'counter' => 1 }.inspect)
 
     app = Rack::Session::Cookie.new(session_id)
     res = Rack::MockRequest.new(app).get("/", "HTTP_COOKIE" => res["Set-Cookie"])
-    res.body.should.match(/"session_id"=>/)
-    res.body.should.match(/"counter"=>1/)
+    res.body.should.match(Regexp.new(Regexp.escape({ 'session_id' => nil }.inspect[1...-1].sub(/nil\z/, ''))))
+    res.body.should.match(Regexp.new(Regexp.escape({ 'counter' => 1 }.inspect[1...-1])))
   end
 
   it "does not return a cookie if set to secure but not using ssl" do
