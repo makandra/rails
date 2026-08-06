@@ -5,6 +5,12 @@ require 'open3'
 class RailsLtsTest < GeneratorTestCase
   REPO_BASE = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
 
+  # Stdlib that turned into bundled gems, which a booting Rails 2.3 app has to
+  # ask for. Requiring one anyway was a warning until Ruby 4.0 made it a
+  # LoadError. Mirrors the RUBY_VERSION >= '3.3' and >= '4' blocks in
+  # Gemfile.common.
+  BUNDLED_GEMS = %w(base64 benchmark bigdecimal cgi csv drb logger mutex_m nkf observer ostruct)
+
   def setup
     Rails::Generator::Base.use_application_sources!
     run_generator('app', [RAILS_ROOT])
@@ -18,7 +24,10 @@ class RailsLtsTest < GeneratorTestCase
     end
   end
 
-  def setup_lts(extra_gems = [])
+  # omit_gems leaves one of BUNDLED_GEMS out, to see what a customer whose
+  # Gemfile predates Ruby 4 actually gets told.
+  def setup_lts(extra_gems = [], omit_gems = [])
+    bundled_gems = RUBY_VERSION >= '4' ? (BUNDLED_GEMS - omit_gems) : []
     File.open("#{RAILS_ROOT}/Gemfile", 'w') do |f|
       f.puts <<-GEMFILE
 source 'http://rubygems.org'
@@ -42,23 +51,7 @@ if RUBY_VERSION >= '3'
   gem 'racc'
 end
 
-# Stdlib that turned into bundled gems, which a booting Rails 2.3 app has to
-# ask for. Requiring one anyway was a warning until Ruby 4.0 made it a
-# LoadError, which is why this only guards the newest Ruby. Mirrors the
-# RUBY_VERSION >= '3.3' and >= '4' blocks in Gemfile.common.
-if RUBY_VERSION >= '4'
-  gem 'base64'
-  gem 'benchmark'
-  gem 'bigdecimal'
-  gem 'cgi'
-  gem 'csv'
-  gem 'drb'
-  gem 'logger'
-  gem 'mutex_m'
-  gem 'nkf'
-  gem 'observer'
-  gem 'ostruct'
-end
+#{bundled_gems.map { |g| "gem '#{g}'" }.join("\n")}
       GEMFILE
     end
   end
@@ -122,6 +115,23 @@ end
         stdout, stderr, status = capture3('bundle exec script/runner "require \'railslts-version\'"')
         raise "command failed: #{stderr}" unless status.success?
         assert_match /You no longer need the railslts-version gem\. Feel free to remove it from your Gemfile\./, stderr
+      end
+    end
+  end
+
+  # An application whose Gemfile predates Ruby 4 gets a LoadError from somewhere
+  # deep in the stack. Check that we turn it into something it can act on.
+  def test_missing_bundled_gem_names_itself
+    return if RUBY_VERSION < '4' # nothing is missing before that
+
+    setup_lts([], ['logger'])
+    with_clean_env do
+      Dir.chdir(RAILS_ROOT) do
+        `bundle install`
+        stdout, stderr, status = capture3('bundle exec script/runner "puts 1"')
+        assert !status.success?, "expected the app not to boot, but it did: #{stdout}"
+        assert_match /no longer ships logger as part of its standard library/, stderr
+        assert_match /gem 'logger'/, stderr
       end
     end
   end

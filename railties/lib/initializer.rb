@@ -1,4 +1,9 @@
-require 'logger'
+# Rails LTS: this is the first thing an application loads, so a bare LoadError
+# here is all a customer would see. activesupport is a dependency of railties
+# and always resolvable by the time the initializer runs.
+require 'active_support/ruby/bundled_gems'
+ActiveSupport::Ruby.require_bundled_gems('logger')
+
 require 'set'
 require 'pathname'
 
