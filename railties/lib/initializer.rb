@@ -329,13 +329,17 @@ module Rails
       if unbuilt_gems.size > 0
         # don't print if the gems:build rake tasks are being run
         unless $gems_build_rake_task
+          # Rails LTS: Gem::VERSION, not Gem::RubyGemsVersion, which RubyGems 4
+          # removed. It reports the same thing and goes back to the 1.8.30 that
+          # Ruby 1.8.7 ships, so this abort still prints instead of raising a
+          # NameError over the top of the problem it is trying to report.
           abort <<-end_error
 The following gems have native components that need to be built
   #{unbuilt_gems.map { |gem| "#{gem.name}  #{gem.requirement}" } * "\n  "}
 
 You're running:
   ruby #{Gem.ruby_version} at #{Gem.ruby}
-  rubygems #{Gem::RubyGemsVersion} at #{Gem.path * ', '}
+  rubygems #{Gem::VERSION} at #{Gem.path * ', '}
 
 Run `rake gems:build` to build the unbuilt gems.
           end_error
@@ -349,13 +353,17 @@ Run `rake gems:build` to build the unbuilt gems.
         @gems_dependencies_loaded = false
         # don't print if the gems rake tasks are being run
         unless $gems_rake_task
+          # Rails LTS: Gem::VERSION, not Gem::RubyGemsVersion, which RubyGems 4
+          # removed. It reports the same thing and goes back to the 1.8.30 that
+          # Ruby 1.8.7 ships, so this abort still prints instead of raising a
+          # NameError over the top of the problem it is trying to report.
           abort <<-end_error
 Missing these required gems:
   #{unloaded_gems.map { |gem| "#{gem.name}  #{gem.requirement}" } * "\n  "}
 
 You're running:
   ruby #{Gem.ruby_version} at #{Gem.ruby}
-  rubygems #{Gem::RubyGemsVersion} at #{Gem.path * ', '}
+  rubygems #{Gem::VERSION} at #{Gem.path * ', '}
 
 Run `rake gems:install` to install the missing gems.
           end_error
