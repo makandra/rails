@@ -120,7 +120,9 @@ module Rack
         end
       end
 
-      empty_str = ""
+      # Rails LTS: dup, because force_encoding mutates and Ruby 3.4 warns that
+      # mutating a string literal will be an error once literals are frozen.
+      empty_str = "".dup
       empty_str.force_encoding("ASCII-8BIT") if empty_str.respond_to? :force_encoding
       opts[:input] ||= empty_str
       if String === opts[:input]
