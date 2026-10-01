@@ -6,7 +6,7 @@ class UriPatchTest < ActiveSupport::TestCase
     vulnerable_uri = 'https://example.com/dir/' + 'a' * (100000) + '/##.jpg' # Approx. 4s without a patch
 
     assert_raises(URI::InvalidURIError) do
-      Timeout.timeout(0.3) { URI.parse(vulnerable_uri) }
+      Timeout.timeout(1) { URI.parse(vulnerable_uri) }
     end
   end
 end

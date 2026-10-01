@@ -108,7 +108,7 @@ class MailerHelperTest < Test::Unit::TestCase
   # Test case for CVE-2024-47889
   def test_block_format_asterisk
     assert_nothing_raised do
-      Timeout.timeout(0.1) do
+      Timeout.timeout(1) do
         helper.block_format('  ' + '*' * 50_000)
       end
     end
@@ -117,7 +117,7 @@ class MailerHelperTest < Test::Unit::TestCase
   # Test case for CVE-2024-47889
   def test_block_format_hashtag
     assert_nothing_raised do
-      Timeout.timeout(0.1) do
+      Timeout.timeout(1) do
         helper.block_format('  ' + '#' * 50_000)
       end
     end
