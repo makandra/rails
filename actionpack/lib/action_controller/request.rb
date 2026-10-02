@@ -503,10 +503,13 @@ EOM
         return params unless ActiveSupport.modern_ruby?
 
         if params.is_a?(String)
-          # Rails LTS: a param can be a string Ruby refuses to let us modify —
-          # Symbol#to_s returns a frozen one from Ruby 4 on. Re-encode a copy and
-          # let the callers below store it back.
-          return params.dup.force_encoding("UTF-8").encode!
+          # Rails LTS: re-encode in place, as before -- the request's other
+          # parameter hashes share these strings, and code reading
+          # request.POST or request.path_parameters relies on them being UTF-8
+          # too. Only a string we may not modify gets re-encoded as a copy,
+          # which the callers below store back.
+          params = params.dup if params.frozen?
+          return params.force_encoding("UTF-8").encode!
         elsif !params.is_a?(Hash)
           return params
         end
