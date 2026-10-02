@@ -53,8 +53,8 @@ module ActiveSupport
 end
 
 # Rails LTS: before anything below reaches for them.
-require 'active_support/ruby/bundled_gems'
-ActiveSupport::Ruby.require_bundled_gems('base64', 'benchmark', 'bigdecimal', 'logger')
+require 'active_support/rails_lts/bundled_gems'
+RailsLts::Support::Ruby.require_bundled_gems('base64', 'benchmark', 'bigdecimal', 'logger')
 
 require 'active_support/version_switches'
 require 'active_support/integer_class'

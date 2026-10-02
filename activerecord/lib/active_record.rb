@@ -32,7 +32,7 @@ rescue LoadError
 end
 
 # Rails LTS: observer backs ActiveRecord::Observer, csv backs CSV fixtures.
-ActiveSupport::Ruby.require_bundled_gems('csv', 'observer')
+RailsLts::Support::Ruby.require_bundled_gems('csv', 'observer')
 
 module ActiveRecord
   # TODO: Review explicit loads to see if they will automatically be handled by the initilizer.

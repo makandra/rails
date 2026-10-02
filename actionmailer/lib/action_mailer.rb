@@ -35,7 +35,7 @@ require 'action_view'
 
 # Rails LTS: our vendored TMail reaches for both, from deep enough inside that
 # the bare LoadError would not point anywhere useful.
-ActiveSupport::Ruby.require_bundled_gems('mutex_m', 'nkf')
+RailsLts::Support::Ruby.require_bundled_gems('mutex_m', 'nkf')
 
 module ActionMailer
   def self.load_all!
