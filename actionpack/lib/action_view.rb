@@ -23,7 +23,10 @@
 
 begin
   require 'active_support'
-rescue LoadError
+rescue LoadError => e
+  # Rails LTS: active_support loaded, but names a gem the Ruby no longer ships.
+  # Falling back to a vendored copy would only hide that.
+  raise if defined?(RailsLts::Support::Ruby::MissingBundledGem) && e.is_a?(RailsLts::Support::Ruby::MissingBundledGem)
   activesupport_path = "#{File.dirname(__FILE__)}/../../activesupport/lib"
   if File.directory?(activesupport_path)
     $:.unshift activesupport_path

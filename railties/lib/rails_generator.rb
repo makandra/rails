@@ -29,7 +29,9 @@ $:.unshift(activesupport) unless $:.include?(activesupport)
 
 begin
   require 'active_support'  
-rescue LoadError
+rescue LoadError => e
+  # Rails LTS: see active_record.rb.
+  raise if defined?(RailsLts::Support::Ruby::MissingBundledGem) && e.is_a?(RailsLts::Support::Ruby::MissingBundledGem)
   require 'rubygems'
   gem 'activesupport'
 end

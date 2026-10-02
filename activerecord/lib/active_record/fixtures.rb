@@ -1,6 +1,7 @@
 require 'erb'
 require 'yaml'
-require 'csv'
+require 'active_support/rails_lts/bundled_gems'
+RailsLts::Support::Ruby.require_bundled_gems('csv')
 require 'zlib'
 require 'active_support/dependencies'
 require 'active_support/test_case'

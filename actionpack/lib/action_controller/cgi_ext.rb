@@ -4,8 +4,9 @@ require 'cgi'
 # patched below — CGI::QueryExtension, CGI::Cookie, CGI.rfc1123_date — comes from
 # the gem now. Requiring cgi succeeds either way, so there is no LoadError to
 # catch and we have to look for the constant.
+require 'active_support/rails_lts/bundled_gems'
 unless defined?(CGI::QueryExtension)
-  fail LoadError, "Ruby #{RUBY_VERSION} only builds in the escaping half of cgi, and Rails needs " \
+  fail RailsLts::Support::Ruby::MissingBundledGem, "Ruby #{RUBY_VERSION} only builds in the escaping half of cgi, and Rails needs " \
                   "the rest of it. Please add \"gem 'cgi'\" to your Gemfile."
 end
 

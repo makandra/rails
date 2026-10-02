@@ -23,7 +23,10 @@
 
 begin
   require 'action_controller'
-rescue LoadError
+rescue LoadError => e
+  # Rails LTS: action_controller loaded, but names a gem the Ruby no longer
+  # ships. Falling back to a vendored copy would only hide that.
+  raise if defined?(RailsLts::Support::Ruby::MissingBundledGem) && e.is_a?(RailsLts::Support::Ruby::MissingBundledGem)
   actionpack_path = "#{File.dirname(__FILE__)}/../../actionpack/lib"
   if File.directory?(actionpack_path)
     $:.unshift actionpack_path
