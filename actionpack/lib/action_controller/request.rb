@@ -504,11 +504,13 @@ EOM
 
         if params.is_a?(String)
           # Rails LTS: re-encode in place, as before -- the request's other
-          # parameter hashes share these strings, and code reading
-          # request.POST or request.path_parameters relies on them being UTF-8
-          # too. Only a string we may not modify gets re-encoded as a copy,
-          # which the callers below store back.
-          params = params.dup if params.frozen?
+          # parameter hashes share these strings, and code reading request.POST
+          # relies on a non-ASCII value being UTF-8 there too. Copy only what we
+          # must not modify: a frozen string, and on Ruby 3.4+ an ASCII-only one,
+          # which is what action names from Symbol#to_s are -- those are chilled
+          # and warn when modified. An ASCII-only string is compatible with UTF-8
+          # in any encoding, so the shared copy staying as it was costs nothing.
+          params = params.dup if params.frozen? || (RUBY_VERSION >= '3.4' && params.ascii_only?)
           return params.force_encoding("UTF-8").encode!
         elsif !params.is_a?(Hash)
           return params
