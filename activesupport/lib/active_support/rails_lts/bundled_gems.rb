@@ -31,23 +31,31 @@ module RailsLts
           begin
             require feature
           rescue LoadError => e
+            # None of the features we check left the standard library before
+            # Ruby 3.4, so on older Rubies a LoadError means something else is
+            # wrong (a distro Ruby with irb split out, say) and is not ours to
+            # explain.
+            raise if RUBY_VERSION < '3.4'
             # Only the feature itself being missing is ours to explain, not
             # something the gem requires, or an extension that fails to load.
-            # LoadError#path is Ruby 2.0+ and can be nil.
-            raise if e.respond_to?(:path) && e.path && e.path != feature
+            # LoadError#path can be nil.
+            raise if e.path && e.path != feature
             missing << feature
           end
         end
         return if missing.empty?
 
         if missing.length == 1
-          fail MissingBundledGem, "Ruby #{RUBY_VERSION} no longer ships #{missing.first} as part of its " \
-                                  "standard library. Please add \"gem '#{missing.first}'\" to your Gemfile."
+          error = MissingBundledGem.new("Ruby #{RUBY_VERSION} no longer ships #{missing.first} as part of its " \
+                                        "standard library. Please add \"gem '#{missing.first}'\" to your Gemfile.")
+          # Like the LoadError it replaces, so code checking LoadError#path still matches.
+          error.instance_variable_set(:@path, missing.first)
         else
           lines = missing.map { |feature| "  gem '#{feature}'" }.join("\n")
-          fail MissingBundledGem, "Ruby #{RUBY_VERSION} no longer ships these as part of its standard " \
-                                  "library: #{missing.join(', ')}. Please add them to your Gemfile:\n#{lines}"
+          error = MissingBundledGem.new("Ruby #{RUBY_VERSION} no longer ships these as part of its standard " \
+                                        "library: #{missing.join(', ')}. Please add them to your Gemfile:\n#{lines}")
         end
+        raise error
       end
     end
   end
