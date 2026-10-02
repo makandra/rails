@@ -106,10 +106,17 @@ Rack::Session::Abstract::ID::DEFAULT_OPTIONS[:sidbits] = 32 # 128 causes a core 
 # {"a"=>1} gained spaces around the arrow, and {:a=>1} became {a: 1}. Tests that
 # assert on an inspected hash ask for the current rendering of one pair rather
 # than hardcoding a format that only holds on some Rubies.
-def inspected_pair(key, value)
-  { key => value }.inspect[1...-1]
-end
+#
+# Included into Test::Unit::TestCase rather than ActiveSupport::TestCase, because
+# some of the callers (render_test's CachedRenderTest, ReloadableRenderTest)
+# subclass Test::Unit::TestCase directly.
+module InspectedPairHelper
+  def inspected_pair(key, value)
+    { key => value }.inspect[1...-1]
+  end
 
-def pair_pattern(key, value)
-  Regexp.new(Regexp.escape(inspected_pair(key, value)))
+  def pair_pattern(key, value)
+    Regexp.new(Regexp.escape(inspected_pair(key, value)))
+  end
 end
+Test::Unit::TestCase.send(:include, InspectedPairHelper)
