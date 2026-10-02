@@ -2,7 +2,7 @@ module Rails
   class BacktraceCleaner < ActiveSupport::BacktraceCleaner
     # Rails LTS: Ruby 3.4 changed backtrace entries from "in `method'" to
     # "in 'Class#method'", so accept either opening quote.
-    ERB_METHOD_SIG = /:in [`']_run_erb_.*/
+    ERB_METHOD_SIG = /:in [`'](?:[^']*[#.])?_run_erb_.*/
 
     RAILS_GEMS   = %w( actionpack activerecord actionmailer activesupport activeresource rails )
 
