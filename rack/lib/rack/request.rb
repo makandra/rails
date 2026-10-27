@@ -112,7 +112,8 @@ module Rack
     end
 
     # Taken from newer Racks (named captures replaced with non-capturing groups for Ruby 1.8 compatibility)
-    VALID_HOST = /^
+    # Rails LTS: anchored to the whole string (as Rack 3 does), not to a single line
+    VALID_HOST = /\A
       (?:
         # An IPv6 address:
         (?:\[[^\]]*\])
@@ -123,7 +124,7 @@ module Rack
         # A hostname:
         (?:[-a-zA-Z0-9._~%!$&'()*+,;=]+)
       )
-    $/x
+    \z/x
 
     def host
       host = host_with_port.to_s.gsub(/:\d+\z/, '')

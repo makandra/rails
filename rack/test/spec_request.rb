@@ -91,6 +91,13 @@ describe Rack::Request do
     req = Rack::Request.new \
       Rack::MockRequest.env_for("/", "HTTP_HOST" => "nic.xn--flw351e:80")
     req.host.should.equal "nic.xn--flw351e"
+
+    # Multi-line hosts
+    ["example.com\nevil.example", "example.com:80\nevil.example", "evil.example\nexample.com", "example.com\n", "\nexample.com"].each do |host|
+      req = Rack::Request.new \
+        Rack::MockRequest.env_for("/", "HTTP_HOST" => host)
+      req.host.should.be.nil
+    end
   end
 
   should "figure out the correct port" do
